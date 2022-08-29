@@ -4,3 +4,5 @@
 # gcc compile executable file
 a.out
 
+# ignore build directory / Gradle
+build
