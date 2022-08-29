@@ -6,3 +6,6 @@ a.out
 
 # ignore build directory / Gradle
 build
+
+# ignore bin directory
+bin
