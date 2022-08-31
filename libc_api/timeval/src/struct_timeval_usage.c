@@ -9,7 +9,7 @@
 #include <sys/time.h>
 
 // #include <sys/time.h>
-int gettimeofday(struct timeval *tv, struct timezone *tz);
+// int gettimeofday(struct timeval *tv, struct timezone *tz);
 
 // @ret  : 成功时候返回0,失败的时候返回-1
 // @parm :
