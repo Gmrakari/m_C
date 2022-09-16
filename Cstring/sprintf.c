@@ -15,7 +15,7 @@ void test() {
     char buffer[50];
     int ret, a = 5, b = 3;
     ret = sprintf(buffer, "%d plus %d is %d", a, b, a + b);
-    printf("[%s]is a string ret:%d\n", buffer, ret);
+    printf("[%s]is a string ret:%d\n", buffer, ret); // [5 plus 3 is 8]is a string ret:13
     return ;
 }
 
@@ -29,7 +29,7 @@ void testRandomNum() {
     }
 
     str[offset - 1] = '\n';
-    printf(str);
+    printf(str); // 89,55,5,4,88,17,75,14,78,27
     return ;
 }
 
