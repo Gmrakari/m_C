@@ -1,4 +1,4 @@
-#include "header.h"
+#include "callbackfun.h"
 
 pf_callback g_ptrFun;
 
@@ -9,5 +9,5 @@ int registerCallBackFun(Compute_ST *registedFun) {
         printf("registe failed\n");
         return -1;
     }
-    g_ptrFun = registedFun->function;
+    g_ptrFun = registedFun->function;    // 注册函数
 }

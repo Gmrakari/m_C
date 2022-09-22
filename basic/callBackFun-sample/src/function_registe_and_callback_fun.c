@@ -1,4 +1,4 @@
-#include "header.h"
+#include "callbackfun.h"
 
 void callbackFun(int event) {
     switch(event) {
@@ -20,7 +20,7 @@ void main() {
     int ret;
     Compute_ST ptrComputer;
     ptrComputer.index = 1;
-    ptrComputer.function = callbackFun;
+    ptrComputer.function = callbackFun; // 注册函数callback fun
 
     ret = registerCallBackFun(&ptrComputer);
     if (ret == -1) {
