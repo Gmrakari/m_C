@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.2)
+project(polymorphism C)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+file(GLOB_RECURSE SRC_LIST "src/*c")
+add_executable(polymorphism ${SRC_LIST})
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
