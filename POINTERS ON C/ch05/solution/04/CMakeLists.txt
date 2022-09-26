@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.2)
+project(bitFunc C)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+file(GLOB_RECURSE srcDirList "src/*c")
+add_executable(bitFunc ${srcDirList})
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
