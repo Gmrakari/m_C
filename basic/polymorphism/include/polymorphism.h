@@ -2,6 +2,7 @@
 #define _POLYMORPHISM_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef int (*ptrFunc)(int, int);
 
@@ -17,8 +18,10 @@ int sub(int a, int b);
 
 int mul(int a, int b);
 
-int div(int a, int b);
+int m_div(int a, int b);
 
 int registerFun(ptrFunc callbackFunc, int a, int b);
+
+int registerFun2(data_t *data);
 
 #endif // _POLYMORPHISM_H

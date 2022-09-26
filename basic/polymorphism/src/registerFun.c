@@ -19,8 +19,8 @@ int mul(int a, int b) {
     return a * b;
 }
 
-int div(int a, int b) {
-    printf("回调函数使用的是div()\n");
+int m_div(int a, int b) {
+    printf("回调函数使用的是m_div()\n");
     printf("a = %d, b = %d\n", a, b);
     return a / b;
 }
@@ -30,4 +30,9 @@ int registerFun(ptrFunc callbackFunc, int a, int b) {
     printf("ret = %d\n", ret);
 
     return 0;
+}
+
+int registerFun2(data_t *data) {
+    int ret = data->callback(data->a, data->b);
+    printf("ret = %d\n", ret);
 }
