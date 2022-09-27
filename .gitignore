@@ -9,3 +9,6 @@ build
 
 # ignore bin directory
 bin
+
+# ignore debug directroy
+debug
