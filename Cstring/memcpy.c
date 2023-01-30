@@ -26,7 +26,57 @@ void test()
     return;
 }
 
+void memcpy_1(void) {
+
+    unsigned char jpg[64 * 64 * 2];
+    memset(jpg, 0, sizeof(jpg));
+    printf("jpg:%s, sizeof:%ld, address:%p\r\n", jpg, sizeof(jpg), jpg);
+
+    unsigned char src[] = "abc";
+    unsigned char *buf = (unsigned char *)malloc(sizeof(src));
+    memcpy(buf, src, sizeof(src));
+
+    printf("buf:%s, %p, sizeof:%ld\r\n", buf, buf, sizeof(buf));
+
+    memcpy(jpg, buf, sizeof(buf));
+    printf("jpg:%s, address:%p, sizeof:%ld\r\n", jpg, jpg, sizeof(jpg));
+
+    if (buf != NULL) {
+        free((buf));        
+    }
+}
+
+void memcpy_2() {
+    typedef struct tmp {
+        unsigned char *data;
+    } tmp_t;
+
+    tmp_t jpg;
+    // memset(jpg.data, 0, sizeof(jpg.data));
+
+    jpg.data = (unsigned char*)malloc(4);
+    unsigned char arr[] = "abc";
+
+    memcpy(jpg.data, arr, sizeof(arr));
+    printf("tmp_t jpg.data:%s, address:%p, sizeof(jpg.data):%ld\r\n", jpg.data, jpg.data, sizeof(jpg.data));
+
+    unsigned char buf[64 * 64 * 2];
+    memcpy(buf, jpg.data, sizeof(jpg.data));
+    printf("buf:%s, %p, sizeof:%ld\r\n", buf, buf, sizeof(buf));
+
+    if (jpg.data != NULL) {
+        free(jpg.data);
+    }
+
+}
+
 int main()
 {
+    #if 0
     test();
+    #endif
+
+    // memcpy_1();
+
+    memcpy_2();
 }
