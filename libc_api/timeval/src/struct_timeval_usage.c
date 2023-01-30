@@ -80,6 +80,22 @@ void _struct_timeval_cal_different_time_func()
     return;
 }
 
+void _get_microseconds_time_func() {
+    time_t t = time(0);
+
+    // struct tm info;
+    struct timeval timeinfo;
+
+    // localtime(&t);
+
+    time_t info;
+
+    printf("time:%ld\r\n", time(&info));
+
+    printf("localtime(&t):%ld\r\n", localtime(&t));
+
+}
+
 void sleep_func()
 {
     printf("start to sleep 2 seconds\r\n");
@@ -89,9 +105,13 @@ void sleep_func()
 
 int main()
 {
+    #if 0
     printf("-------------------------------------------------------------\r\n");
     _struct_timeval_func_member_use_func();
     printf("-------------------------------------------------------------\r\n");
     _struct_timeval_cal_different_time_func();
     printf("-------------------------------------------------------------\r\n");
+    #endif
+
+    _get_microseconds_time_func();
 }
