@@ -12,3 +12,6 @@ bin
 
 # ignore debug directroy
 debug
+
+# ignore CLion Cmake Debug directory
+cmake-build-debug
