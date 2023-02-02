@@ -5,10 +5,10 @@
 a.out
 
 # ignore build directory / Gradle
-build
+build/*
 
 # ignore bin directory
-bin
+bin/*
 
 # ignore debug directroy
 debug
