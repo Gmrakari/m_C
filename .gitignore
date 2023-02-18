@@ -5,10 +5,12 @@
 a.out
 
 # ignore build directory / Gradle
-build/*
+**/build/*
+!**/build/.gitkeep
 
 # ignore bin directory
-bin/*
+**bin/*
+!**bin/.gitkeep
 
 # ignore debug directroy
 debug
