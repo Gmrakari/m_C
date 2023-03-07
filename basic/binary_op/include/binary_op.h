@@ -10,7 +10,7 @@
 
 typedef struct {
     unsigned int (*read_bits)(int theKbit);
-    unsigned int (*set_bits)(int theKbit);
+    unsigned int (*set_bits)(unsigned int reg, int theKbit);
     unsigned int (*clear_bits)(int theKbit);
     int (*check_is_power2)(int number);
     unsigned int (*reverse_2_bits)(unsigned int number);

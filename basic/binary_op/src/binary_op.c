@@ -43,10 +43,20 @@ unsigned int _read_bits(int theKbit)
     return ret;
 }
 
-
-unsigned int _set_bits(int theKbit)
+/**
+ * @brief 设置某一位
+ * 
+ * @param reg 操作的地址
+ * @param theKbit 设置第K位
+ * @return size_t 将theKbit设置为1
+ */
+unsigned int _set_bits(unsigned int reg, int theKbit)
 {
     unsigned int ret = 0;
+    reg |= (1 << theKbit);
+    ret = reg;
+
+    printf("value:0x%08x\r\n", ret);
 
     return ret;
 }
