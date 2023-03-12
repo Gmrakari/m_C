@@ -60,9 +60,19 @@ unsigned int _set_bits(unsigned int reg, int theKbit)
 
     return ret;
 }
-unsigned int _clear_bits(int theKbit)
+/**
+ * @brief 清除某一位
+ *
+ * @param reg 操作的地址
+ * @param theKbit 设置第K位
+ * @return size_t 将theKbit设置为val
+ */
+unsigned int _clear_bits(unsigned int reg, int theKbit, int val)
 {
     unsigned int ret = 0;
+    reg &= ~(1 << 3);
+    ret = reg;
+    printf("register val:0x%08x\r\n", ret);
 
     return ret;
 }
