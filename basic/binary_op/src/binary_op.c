@@ -65,15 +65,14 @@ unsigned int _set_bits(unsigned int reg, int theKbit)
  *
  * @param reg 操作的地址
  * @param theKbit 设置第K位
- * @return size_t 将theKbit设置为val
+ * @return size_t 将theKbit设置为0
  */
-unsigned int _clear_bits(unsigned int reg, int theKbit, int val)
+unsigned int _clear_bits(unsigned int *reg, int theKbit)
 {
     unsigned int ret = 0;
-    reg &= ~(1 << 3);
-    ret = reg;
+    *reg &= ~(1 << theKbit);
+    ret = *reg;
     printf("register val:0x%08x\r\n", ret);
-
     return ret;
 }
 
@@ -88,6 +87,18 @@ unsigned int _reverse_2_bits(unsigned int number)
     return ret;
 }
 
+void _print(unsigned int *reg)
+{
+    for (int i = 15; i >= 0; i--)
+    {
+        printf("%02x", (*reg >> i) & 1);
+        if (i != 0) {
+            printf(" ");
+        }
+    }
+    printf("\r\n");
+}
+
 int bin_op_init(bin_op_t *dst)
 {
     dst->read_bits = _read_bits;
@@ -95,6 +106,7 @@ int bin_op_init(bin_op_t *dst)
     dst->clear_bits = _clear_bits;
     dst->check_is_power2 = _check_is_power2;
     dst->reverse_2_bits = _reverse_2_bits;
+    dst->print = _print;
     me = dst;
 
     return 0;

@@ -25,13 +25,22 @@ void set_bits_test(unsigned int reg, bin_op_t *bin_op)
     bin_op->set_bits(reg, 2);
 }
 
-static void _clear_bit_test(unsigned int reg, bin_opt_t *bin_op)
+static void _clear_bit_test(unsigned int reg, bin_op_t *bin_op)
 {
-    bin_op->clear_bits(reg, 0);
+    printf("origin data:\r\n");
+    bin_op->print(&reg);
+
+    printf("clear 0 bits data:");
+    bin_op->clear_bits(&reg, 0);
+    bin_op->print(&reg);
     printf("\r\n");
-    bin_op->clear_bits(reg, 1);
+    printf("clear 1 bits data:");
+    bin_op->clear_bits(&reg, 1);
+    bin_op->print(&reg);
     printf("\r\n");
-    bin_op->clear_bits(reg, 2);
+    printf("clear 2 bits data:");
+    bin_op->clear_bits(&reg, 2);
+    bin_op->print(&reg);
 }
 
 int main()
@@ -50,7 +59,8 @@ int main()
 #endif
 
 #if USE_CLEAR_BITS_TEST
-    unsigned int reg = 0x12345678;
+    // unsigned int reg = 0x12345678;
+    unsigned int reg = 0x123;
     _clear_bit_test(reg, &bin_op);
 #endif
 
