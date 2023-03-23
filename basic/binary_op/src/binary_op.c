@@ -76,9 +76,25 @@ unsigned int _clear_bits(unsigned int *reg, int theKbit)
     return ret;
 }
 
+
+/**
+ * @brief 判断number是否为2的幂
+ *
+ * @param number 操作的整数
+ * @return -1:不是2的幂，0:2的幂
+ */
 int _check_is_power2(int number)
 {
     int ret = 0;
+    // 如果一个整数是2的幂，那么它的二进制表示中只有一位是1，其余位都是0。
+    // 如果我们将一个2的幂和它减去1的结果进行按位与运算，得到的结果应该为0
+    // 比如8(10):1000(2), 7(10):111(2)
+    //   1000
+    // & 0111
+    // ------
+    //   0000
+    if ((number & (number - 1)) != 0 || number == 1)
+        ret = -1;
     return ret;
 }
 unsigned int _reverse_2_bits(unsigned int number)

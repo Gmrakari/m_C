@@ -2,7 +2,8 @@
 
 #define USE_READ_BITS_TEST 0
 #define USE_SET_BITS_TEST 0
-#define USE_CLEAR_BITS_TEST 1
+#define USE_CLEAR_BITS_TEST 0
+#define USE_CHECK_IS_POWER_TEST 1
 
 
 void read_bits_test(bin_op_t *bin_op)
@@ -43,6 +44,17 @@ static void _clear_bit_test(unsigned int reg, bin_op_t *bin_op)
     bin_op->print(&reg);
 }
 
+static void _check_is_power(unsigned int *number, size_t len, bin_op_t *bin_op)
+{
+    int ret = -1;
+    for (int i = 0; i < len; i++) {
+        if (!(ret = bin_op->check_is_power2(number[i]))) 
+            printf("%d is power 2\r\n", number[i]);
+    }
+
+    return ;
+}
+
 int main()
 {
     bin_op_t bin_op = {0};
@@ -62,6 +74,14 @@ int main()
     // unsigned int reg = 0x12345678;
     unsigned int reg = 0x123;
     _clear_bit_test(reg, &bin_op);
+#endif
+
+#if USE_CHECK_IS_POWER_TEST
+    unsigned int number[2048] = {0};
+    for (unsigned int i = 0; i < sizeof(number)/ sizeof(number[0]); i++) {
+        number[i] = i;
+    }
+    _check_is_power(number, sizeof(number)/ sizeof(number[0]), &bin_op);
 #endif
 
     return 0;
