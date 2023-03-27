@@ -1,12 +1,7 @@
 #ifndef _BINARY_OP_H
 #define _BINARY_OP_H
 
-/*
- *
- *
- */
 #include <stdio.h>
-//#include
 
 typedef struct {
     unsigned int (*read_bits)(int theKbit);
@@ -17,8 +12,8 @@ typedef struct {
     unsigned int (*reverse_2_bits)(unsigned int number);
 } bin_op_t;
 
-int bin_op_init(bin_op_t *dst);
+extern bin_op_t bin_op;
 
-//typedef struct bin_op_t bin_op;
+int bin_op_init(bin_op_t *dst);
 
 #endif // _BINARY_OP_H

@@ -1,5 +1,6 @@
 #include "binary_op.h"
 
+bin_op_t bin_op = {0};
 static bin_op_t *me;
 
 void check_endian(void)

@@ -57,7 +57,6 @@ static void _check_is_power(unsigned int *number, size_t len, bin_op_t *bin_op)
 
 int main()
 {
-    bin_op_t bin_op = {0};
     bin_op_init(&bin_op);
 
 #if USE_READ_BITS_TEST
