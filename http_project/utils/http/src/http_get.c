@@ -42,9 +42,17 @@ char *http_get(const char *url)
     char *ip = NULL;
     char *req_buf = NULL;
 
+    char *strstr_ret;
+    char data_len_buff[10];
+    int i = 0;
+    int data_len = 0;
+
     url_data_t data = {0};
     struct sockaddr_in client_addr;
     char *buff = (char*)malloc(BUFF_SIZE);
+
+    char *out = NULL;
+    int data_start = -1;
 
     ip = host_to_ip(g_data.host);
     if (ip == NULL) {
@@ -100,7 +108,45 @@ char *http_get(const char *url)
                 }
                 printf("HTTP Header: %s!\r\n", HTTP_RSP_OK);
 
-                
+                /*
+                 * 获取数据长度 "content-length:xxx" or "Content-Length:xxx"
+                 */
+                if ( NULL == (strstr_ret = strstr((char *)buf, "content-length:"))) {
+                    if (NULL == (strstr_ret = strstr((char *)buf, "Content-Length:"))) {
+                        ret = -1;
+                        return ret;
+                    }
+                }
+                strstr_ret += strlen("content-length:");
+                while (*strstr_ret != '\r') {
+                    data_len_buff[i++] = *(strstr_ret++);
+                }
+                data_len_buff[i] = 0;
+                data_len = atoi(data_len_buff);
+                printf("HTTP Data size:%d\r\n", data_len);
+
+                out = malloc(data_len);
+                if (out == NULL) {
+                    ret = -1;
+                    return ret;
+                }
+
+                data_start = 0;
+                while (1) {
+                    if (buff[data_start] == '\r') {
+                        if (buff[data_start + 1] == '\n') && if (buff[data_start + 2] == '\r') &&
+                        if (buff[data_start + 3] == '\n') {
+                            data_start += 4;
+                            break;
+                        }
+                    }
+
+                    if (data_start >= BUFF_SIZE) break;
+                    data_start++;
+                }
+
+                printf("HTTP Data offset:%d\r\n", data_start);
+
             }
 
         }
