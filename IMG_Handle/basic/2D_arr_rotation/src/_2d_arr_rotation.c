@@ -6,7 +6,8 @@
 #include "_2d_arr_rotation.h"
 #include "_2d_arr_print.h"
 
-static int arr[3][3] = {0};
+static int arr[4][4] = {0};
+static int dest[4][4] = {0};
 
 void print(const char *str, const int (*arr)[], const size_t row, const size_t col);
 
@@ -36,20 +37,38 @@ static int _2d_arr_init(size_t row, size_t col)
     return ret;
 }
 
+static void _2d_arr_rotation(const int (*src)[], int (*dest)[], const size_t row, const size_t col)
+{
+    if (src == NULL || dest == NULL|| col == 0)
+        return ;
+
+    int (*src_ptr)[col] = (int (*)[])src; 
+    int (*dest_ptr)[col] = (int (*)[])dest; 
+
+    for (size_t i = 0; i < row; i++) {
+        for (size_t j = 0; j < col; j++) {
+            dest_ptr[j][row - i - 1] = src_ptr[i][j];
+        }
+    }
+}
+
 void app_test()
 {
-    size_t row = 3, col = 3;
+    size_t row = 4, col = 4;
 
     int ret = 0;
 
     if (0 != (ret = _2d_arr_init(row, col)))
         return ;
 
-    int **arr_2d = NULL;
-    arr_2d = (int **)arr;
-
+    int (*arr_2d)[4] = (int (*)[])arr;
+    int (*dest_2d)[4] = (int (*)[])dest;
     const char arr_str[] = "src";
+    const char dest_str[] = "dest";
 
     print(arr_str, arr_2d, row, col);
 
+    _2d_arr_rotation(arr_2d, dest_2d, row, col);
+
+    print(dest_str, dest_2d, row, col);
 }
