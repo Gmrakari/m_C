@@ -42,14 +42,10 @@ void p2p_func(char **str, size_t len)
     }
     dest[len] = '\0';
 
-    // memcpy(*str, dest, len + 1); // str是一个字符常量 无法修改
-    // strcpy(*str, dest);
-
-    // free(*str);
+    // strcpy(*str, dest);          // err 无法对一个char *进行变量修改,只能修改它的指针指向(地址)
     *str = dest;
 
-    // printf("dest:%s\r\n", dest);
-    // printf("str:%s\r\n", *str);
+    // memcpy(*str, dest, len + 1); // str是一个字符常量 无法修改
 }
 
 void print(char *str) {
@@ -60,25 +56,6 @@ void print(char *str) {
     printf("\r\n");
 }
 
-int main() {
-    char str[] = "abcdefg";
-    size_t len = 7;
-
-    printf("len:%ld\r\n", len);
-
-    // print(str);
-    
-    // func(str, len);
-
-    p2p_func(&str, len);
-
-    print(str);
-
-    return 0;
-}
-
-// size_t len = _get_str_len(str);
-
 size_t _get_str_len(char *str) {
     if (str == NULL) return -1;
     size_t len = 0;
@@ -87,4 +64,25 @@ size_t _get_str_len(char *str) {
         str++;
     }
     return len;
+}
+
+int main() {
+    char *str = "abcdefg";
+    size_t len = _get_str_len(str);
+
+    printf("len:%ld\r\n", len);
+
+    print(str);
+    
+    // func(str, len);
+
+    p2p_func(&str, len);
+
+    print(str);
+
+    // 在p2c_func中申请内存,需要释放
+    free(str);
+    str = NULL;
+
+    return 0;
 }
