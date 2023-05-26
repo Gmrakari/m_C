@@ -9,13 +9,10 @@
 #include <time.h>
 #include "socket_client.h"
 
+int sockfd = -1;
 
-#define BUFF_SIZE (1024)
-#define TCP_PORT (8000)
-#define SERVER_IP "127.0.0.1"
-#define MAX_MSG_LENGTH 256
-
-char* get_current_time_str() {
+char* get_current_time_str()
+{
     time_t now;
     time(&now);
 
@@ -24,14 +21,8 @@ char* get_current_time_str() {
     static char time_str[MAX_MSG_LENGTH];
     strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    return time_str;
+    return time_str;    
 }
-
-// #define HEARTBEAT_MSG "" get_current_time_str() "- {heartbeat msg}"
-
-#define HEARTBEAT_MSG "{heartbeat msg - " get_current_time_str() "}"
-
-int sockfd = -1;
 
 int client_app(void)
 {
@@ -45,9 +36,9 @@ int client_app(void)
         }
 
         struct sockaddr_in client_addr = {
-            .sin_family = AF_INET,
-            .sin_port = TCP_PORT,
             .sin_addr.s_addr = inet_addr(SERVER_IP),
+            .sin_family = AF_INET,
+            .sin_port = htons(TCP_PORT),
             .sin_zero = {0},
         };
 
@@ -115,7 +106,6 @@ _exit:
     if (sockfd >= 0) {
         close(sockfd);
     }
-
     printf("[%s][%d]\r\n", __func__, __LINE__);
     return ret;
 }

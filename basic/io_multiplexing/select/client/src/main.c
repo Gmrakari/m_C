@@ -5,5 +5,7 @@ int main() {
 
     client_app();
 
+    return 0;
+
 }
 
