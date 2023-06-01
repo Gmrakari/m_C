@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <bits/types.h>
 #include <time.h>
+#include <string.h>
 
-static char format_time_str[32];
+static char format_time_str[32] = {0};
 
 char *get_cur_time()
 {
@@ -72,5 +73,16 @@ int main(int argc, char const *argv[]) {
 
     char *snstr = get_cur_time_snprintf();
     printf("snstr:%s\r\n", snstr);
+
+    char time_str[32] = {0};
+    memset(time_str, 0, sizeof(time_str));
+    int len = strlen(get_cur_time_snprintf());
     
+    printf("len:%d\r\n", len);
+    memcpy(time_str, get_cur_time_snprintf(), sizeof(char) * strlen(get_cur_time_snprintf()));
+
+    char time_buf[] = "2023-02-28 15:57:33";
+
+    printf("time_str:%s\r\n", time_str);
+
 }
