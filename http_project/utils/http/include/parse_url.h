@@ -18,6 +18,6 @@ typedef struct {
     char path[PARSE_URL_PATH_SIZE];
 } url_data_t;
 
-void parse_url(const char *url, url_data_t *data, size_t len);
+int parse_url(const char *url, url_data_t *data, size_t len);
 
 #endif // _PARSE_URL_H

@@ -1,5 +1,3 @@
-
-
 #ifndef _HOST_TO_IP_H
 #define _HOST_TO_IP_H
 

@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#define BUF_SIZE      (1024)
+#define BUFF_SIZE      (1024)
 #define HTTP_RSP_OK   "HTTP/1.1 200 OK"
 
 char *http_get(const char *url);
