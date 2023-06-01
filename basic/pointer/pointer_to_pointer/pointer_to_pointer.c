@@ -26,10 +26,30 @@ void FindCredit(int **fpp)
     }
 }
 
-int main()
+void test_1()
 {
     int vals[] = {7, 6, 5, -4, 3, 2, 1, 0};
     int *fp = vals;
     FindCredit(&fp);
     printf("%d\n", *fp);
+}
+
+void _print_pointer_relation_info()
+{
+    int a = 10;
+    int *p = &a;
+    int **q = &p;
+
+    printf("a = %d, &a = %p\r\n", a, &a);                           // a = 10, &a = 0x7ffd1659e494
+    printf("p = %d, p = %p, &p = %p\r\n", *p, p, &p);               // *p = 10, p = &a = 0x7ffd1659e494, &p = 0x7ffd1659e498
+    printf("**q = %d, *q = %p, q = %p, &q:%p\r\n", **q, *q, q, &q); // **q = 10, *q = 0x7ffd1659e494, q = 0x7ffd1659e498, &q:0x7ffd1659e4a0
+}
+
+int main()
+{
+    #if 0
+    test_1();
+    #endif
+
+    _print_pointer_relation_info();
 }
