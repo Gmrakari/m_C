@@ -10,14 +10,14 @@
 
 #define LOGI(format, ...) printf(format"\r\n" , ##__VA_ARGS__)
 
+// 优化避免每次都申请一次内存
+static struct tm g_tm;
+
 // 时间戳，转换成tm结构体的时间，用完需要释放内存
 static struct tm *timestamp_2_tm(const time_t timestamp)
 {
-    struct tm *cur_tm = (struct tm *)malloc(sizeof(struct tm));
-    if (cur_tm == NULL) {
-        printf("cur_tm molloc err\r\n");
-        return NULL;
-    }
+    struct tm *cur_tm = &g_tm;
+    if (cur_tm == NULL) return NULL;
     cur_tm->tm_year = 1970;
     time_t seconds = timestamp;
 
@@ -49,7 +49,7 @@ static struct tm *timestamp_2_tm(const time_t timestamp)
     }
 
     // 计算月份
-    int16_t month_lengths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int8_t month_lengths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     if ((cur_tm->tm_year % 4 == 0 && cur_tm->tm_year %100 != 0) || cur_tm->tm_year % 400 == 0)
         month_lengths[1] = 29;
 
@@ -70,22 +70,22 @@ static struct tm *timestamp_2_tm(const time_t timestamp)
     cur_tm->tm_min = (seconds % SEC_PER_HOUR) / SEC_PER_MINUTE;
     cur_tm->tm_sec = seconds % SEC_PER_MINUTE;
 
+    #if 0
     // 使用Zellers Kongruenz 公式计算任何一日属一星期中哪一日
     int16_t year_of_century = cur_tm->tm_year % 100;
     int16_t century = cur_tm->tm_year / 100;
-
-    int16_t month = cur_tm->tm_mon + 1;
+    int8_t month = cur_tm->tm_mon + 1;
     int16_t day = cur_tm->tm_mday;
-    int16_t weekday = -1;
-
+    int8_t weekday = 0x00;
     if (month == 1 || month == 2) {
         year_of_century --;
         month += 12;
     }
     weekday = year_of_century + year_of_century / 4 + century / 4 - 2 * century + 13 * (month + 1) / 5 + day - 1;
+    #endif
 
-    while (weekday < 0)
-        weekday += 7;
+    int8_t weekday = 0x00;
+    weekday = (timestamp / SEC_PER_DAY + 4) % 7;
     cur_tm->tm_wday = weekday % 7;
 
     // 计算一年中的日期 [0,365], 其中0表示1月1日
@@ -135,8 +135,6 @@ static void testcase()
         if (m_cur_time != NULL) {
             print_tm(m_cur_time);
 
-            free(m_cur_time);
-            m_cur_time = NULL;
         }
     }
     return ;
