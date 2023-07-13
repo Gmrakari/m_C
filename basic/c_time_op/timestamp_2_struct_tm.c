@@ -14,12 +14,12 @@
 static struct tm g_tm;
 
 // 时间戳，转换成tm结构体的时间，用完需要释放内存
-static struct tm *timestamp_2_tm(const time_t timestamp)
+static struct tm *timestamp_2_tm(const time_t *timestamp)
 {
     struct tm *cur_tm = &g_tm;
     if (cur_tm == NULL) return NULL;
     cur_tm->tm_year = 1970;
-    time_t seconds = timestamp;
+    time_t seconds = *timestamp;
 
     // 计算年份
     if (seconds < 0) {
@@ -42,11 +42,8 @@ static struct tm *timestamp_2_tm(const time_t timestamp)
         }
     }
 
-    if (cur_tm->tm_year > 9999) {
-        free(cur_tm);
-        cur_tm = NULL;
+    if (cur_tm->tm_year > 9999)
         return NULL;
-    }
 
     // 计算月份
     int8_t month_lengths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -85,7 +82,7 @@ static struct tm *timestamp_2_tm(const time_t timestamp)
     #endif
 
     int8_t weekday = 0x00;
-    weekday = (timestamp / SEC_PER_DAY + 4) % 7;
+    weekday = ((*timestamp) / SEC_PER_DAY + 4) % 7;
     cur_tm->tm_wday = weekday % 7;
 
     // 计算一年中的日期 [0,365], 其中0表示1月1日
@@ -131,7 +128,7 @@ static void testcase()
     struct tm *m_cur_time = NULL;
 
     for (int i = 0; i < len; i++) {
-        m_cur_time = timestamp_2_tm(timestamp_list[i]);
+        m_cur_time = timestamp_2_tm(&timestamp_list[i]);
         if (m_cur_time != NULL) {
             print_tm(m_cur_time);
 
