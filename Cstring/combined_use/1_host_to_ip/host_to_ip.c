@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <string.h>  // strncpy
 
 char *host_to_ip(const char *host) 
 {
@@ -24,7 +25,8 @@ char *host_to_ip(const char *host)
         if (ip == NULL) {
             return NULL;
         }
-        ip = inet_ntoa(**addr_list);
+        // ip = inet_ntoa(**addr_list); // 内存泄露
+        strncpy(ip, inet_ntoa(**addr_list), 256);
         break;
     }
     
@@ -32,7 +34,9 @@ char *host_to_ip(const char *host)
 }
 
 int main() {
-    char *host = "www.baidu.com";
+    // char *host = "www.google.com";
+    char *host = "localhost";
     char *ip = host_to_ip(host);
     printf("ip:%s\r\n", ip);
+    free(ip), ip = NULL;
 }
