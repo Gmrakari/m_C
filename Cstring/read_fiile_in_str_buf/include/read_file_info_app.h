@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
+#define FILE_PATH_MAX_LEN (256)
+#define CONFIG_PATH "/res/info"
 
 int read_file_info_app();
-
 
 #ifdef __cplusplus
 }
