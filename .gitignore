@@ -20,3 +20,6 @@ cmake-build-debug
 
 #ignore Bin directory
 bin
+
+#ignore lib directory
+lib
