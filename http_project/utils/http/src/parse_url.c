@@ -1,27 +1,27 @@
-#include "parse_url.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int parse_url(const char *url, url_data_t *data, size_t len)
-{
+#include "../include/parse_url.h"
+#include "../include/http.h"
+
+int parse_url(const char *url, size_t in_url_len, url_package_t *out_data) {
     int ret = 0;
-    if (url == NULL || data == NULL || len > PARSE_URL_PTL_SIZE + PARSE_URL_HOST_SIZE + PARSE_URL_PORT_SIZE + PARSE_URL_PATH_SIZE)
-    {
+    if (url == NULL || out_data == NULL || in_url_len > PARSE_URL_PTL_SIZE + PARSE_URL_HOST_SIZE + PARSE_URL_PORT_SIZE + PARSE_URL_PATH_SIZE) { 
         ret = -1;
         return ret;
     }
 
     const char *p = url;
-    const char *end = url + len;
+    const char *end = url + in_url_len;
     size_t count = 0;
     int port = -1;
 
     // match Protocol
     while (p < end && *p != ':' && *p != '/') {
-        data->ptl[count++] = *p++;
+        out_data->ptl[count++] = *p++;
     }
-    data->ptl[count] = '\0';
+    out_data->ptl[count] = '\0';
 
     // match Host
     count = 0;
@@ -33,22 +33,22 @@ int parse_url(const char *url, url_data_t *data, size_t len)
     }
 
     while (p < end && *p != ':' && *p != '/') {
-        data->host[count++] = *p++;
+        out_data->host[count++] = *p++;
     }
-    data->host[count] = '\0';
+    out_data->host[count] = '\0';
 
     // match port
     count = 0;
-    if (p < end && *p == ':') {
+    if (p < end && *p == ':') { 
         p++; // match ':'
         port = 0;
         while (p < end && *p != '/') {
             port = port * 10 + (*p - '0');
-            data->port[count++] = *p++;
+            out_data->port[count++] = *p++;
         }
-        data->port[count] = '\0';
+        out_data->port[count] = '\0';
     } else {
-        if (!strcmp(data->ptl, "https")) {
+        if (!strcmp(out_data->ptl, "https")) {
             port = DEFAULT_HTTPS_PORTS;
         } else {
             port = DEFAULT_HTTP_PORT;
@@ -57,9 +57,9 @@ int parse_url(const char *url, url_data_t *data, size_t len)
 
     count = 0;
     while (p < end) {
-        data->path[count++] = *p++;
+        out_data->path[count++] = *p++;
     }
-    data->path[count] = '\0';
+    out_data->path[count] = '\0';
 
     return ret;
 }

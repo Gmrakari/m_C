@@ -1,15 +1,17 @@
-cmake_minimum_required(VERSION 3.10)
-project(my_project)
+cmake_minimum_required(VERSION 3.0)
+
+project(http)
+
+# 设置 C 编译器
+set(CMAKE_C_COMPILER gcc)
 
 # 添加子目录
 add_subdirectory(utils/http)
-add_subdirectory(test)
 
 # 添加可执行文件
-add_executable(my_project main.c)
+add_executable(app main.c)
 
-# 链接http_get库
-target_link_libraries(my_project http_get)
+# 链接主程序和子目录中的库
+target_link_libraries(app http_utils)
 
-# 设置安装路径
-install(TARGETS my_project DESTINATION bin)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)

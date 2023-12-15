@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <string.h> // strncpy
 
 char *host_to_ip(const char *host) 
 {
@@ -22,7 +23,7 @@ char *host_to_ip(const char *host)
         if (ip == NULL) {
             return NULL;
         }
-        ip = inet_ntoa(**addr_list);
+        strncpy(ip, inet_ntoa(**addr_list), 256);
         break;
     }
 
