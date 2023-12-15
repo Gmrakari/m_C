@@ -18,11 +18,16 @@ int read_file_info_app() {
     pairs_info_t *pairs = NULL;
     size_t pairs_num = 0;
     pairs_num = info_num;
-    if (0 != (u32Ret = gen_pairs_info(&info, pairs_num, &pairs)))
+    if (0 != (u32Ret = gen_pairs_info(&info, pairs_num, &pairs))) {
+        free_pairs_info(&pairs, pairs_num);
         return -1;
+    }
 
     cJSON *obj = format_pairs_to_json(&pairs, pairs_num);
-    if (!obj) return -1;
+    if (!obj) {
+        free_pairs_info(&pairs, pairs_num);
+        return -1;
+    }
 
     free_pairs_info(&pairs, pairs_num);
 
