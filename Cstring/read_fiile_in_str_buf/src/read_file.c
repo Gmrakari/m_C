@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h> // perror
+#include <ctype.h> // isspace
 
 #include "read_file.h"
-#include "format_str_to_json.h"
+#include "format_pairs_to_json.h"
 #include "read_file_info_app.h"
-
-#define CONFIG_INFO_LINE_MAX_LEN (128)
 
 char *str_trim(char *str) {
     while (isspace((unsigned char)*str)) str++; // 跳过前导空格
@@ -20,17 +19,13 @@ char *str_trim(char *str) {
     return str;
 }
 
-int read_file(const char *filepath) {
-    if (!filepath) return -1;
+int read_file(const char *filepath, param_info_t *info, size_t *info_num) {
+    if (!filepath || !info) return -1;
 
     FILE *fp = fopen(filepath, "r");
     if (fp == NULL) return -1;
 
-    char pid[FILE_PATH_MAX_LEN] = {0};
-    char uuid[FILE_PATH_MAX_LEN] = {0};
-    char token[FILE_PATH_MAX_LEN] = {0};
-    char secret[FILE_PATH_MAX_LEN] = {0};
-
+    size_t line_count = 0;
     char line[CONFIG_INFO_LINE_MAX_LEN] = {0};
     while (fgets(line, sizeof(line), fp)) {
         char *pos = strchr(line, '=');
@@ -42,28 +37,22 @@ int read_file(const char *filepath) {
             value[strcspn(value, "\n")] = '\0';
 
             if (!strcmp(key, "pid")) {
-                strncpy(pid, value, sizeof(pid));
+                strncpy(info->pid, value, sizeof(info->pid));
             } else if (!strcmp(key, "uuid")) {
-                strncpy(uuid, value, sizeof(uuid));
+                strncpy(info->uuid, value, sizeof(info->uuid));
             } else if (!strcmp(key, "token")) {
-                strncpy(token, value, sizeof(token));
+                strncpy(info->token, value, sizeof(info->token));
             } else if (!strcmp(key, "secret")) {
-                strncpy(secret, value, sizeof(secret));
+                strncpy(info->secret, value, sizeof(info->secret));
             } 
+            line_count++;
         }
     }
 
+    *info_num = line_count;
     fclose(fp);
 
-    printf("pid:%s\r\n", pid);
-    printf("uuid:%s\r\n", uuid);
-    printf("token:%s\r\n", token);
-    printf("secret:%s\r\n", secret);
-
-    const char *str = "111";
-    cJSON *json = NULL;
-
-    format_str_to_json(str, json);
+    return 0;
 }
 
 int get_app_file_path(char *path) {
@@ -110,5 +99,46 @@ int get_config_file_path(char *path) {
     snprintf(config_path, sizeof(config_path), "%s"CONFIG_PATH, exe_path);
     strncpy(path, config_path, sizeof(config_path));
 
+    return 0;
+}
+
+int gen_pairs_info(param_info_t *info, size_t pairs_num, pairs_info_t **pairs) {
+    if (!info || pairs_num == 0) return -1;
+
+    const char *info_arr[] = {"pid", "uuid", "secret", "token"};
+
+    *pairs = (pairs_info_t*)malloc(sizeof(pairs_info_t) * pairs_num);
+    if (!(*pairs)) return -1;
+
+    for (size_t i = 0; i < pairs_num; i++) {
+        (*pairs)[i].key = strdup(info_arr[i]);
+
+        if (!strcmp(info_arr[i], "pid")) {
+            (*pairs)[i].value = strdup(info->pid);
+        } else if (!strcmp(info_arr[i], "uuid")) {
+            (*pairs)[i].value = strdup(info->uuid);
+        } else if (!strcmp(info_arr[i], "secret")) {
+            (*pairs)[i].value = strdup(info->secret);
+        } else if (!strcmp(info_arr[i], "token")) {
+            (*pairs)[i].value = strdup(info->token);
+        } else {
+            (*pairs)[i].value = NULL;
+        }
+
+        if (!(*pairs)[i].key || !(*pairs)[i].value) { // 内存分配失败
+            free_pairs_info(*pairs, i);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+int free_pairs_info(pairs_info_t **pairs, size_t pairs_num) {
+    for (size_t i = 0; i < pairs_num; i++) {
+        if ((*pairs)[i].key) { free((*pairs)[i].key); (*pairs)[i].key = NULL; }
+        if ((*pairs)[i].value) { free((*pairs)[i].value); (*pairs)[i].value = NULL; }
+    }
+    free(*pairs);
     return 0;
 }

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 project(strTocJSON C)
 
+# 添加 -g 编译选项
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # 添加主项目源文件
