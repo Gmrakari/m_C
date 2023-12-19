@@ -128,6 +128,7 @@ int gen_pairs_info(param_info_t *info, const char (*info_arr)[PARAM_INFO_T_STR_M
 }
 
 int free_pairs_info(pairs_info_t *pairs, size_t pairs_num) {
+    if (!pairs) return 0;
     for (size_t i = 0; i < pairs_num; i++) {
         if (pairs[i].key) { free(pairs[i].key); pairs[i].key = NULL; }
         if (pairs[i].value) { free(pairs[i].value); pairs[i].value = NULL; }
