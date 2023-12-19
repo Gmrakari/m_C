@@ -8,6 +8,12 @@ extern "C" {
 #define FILE_PATH_MAX_LEN (256)
 #define CONFIG_PATH "/res/info"
 
+#define USE_DEBUG  1
+
+#if USE_DEBUG
+#define DEBUG(format, ...) printf("[%s][%d]"format"\r\n", __func__, __LINE__, ##__VA_ARGS__)
+#endif
+
 int read_file_info_app();
 
 #ifdef __cplusplus

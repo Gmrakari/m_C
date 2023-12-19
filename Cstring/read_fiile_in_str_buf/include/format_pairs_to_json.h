@@ -11,7 +11,7 @@ extern "C" {
 // 将字符串转换成Json格式
 // in:传入需要格式化的字符串 pairs_info_t类型
 // 返回值 cJSON *对象
-cJSON *format_pairs_to_json(const pairs_info_t **pairs_info, const size_t pairs_num);
+cJSON *format_pairs_to_json(const pairs_info_t *pairs_info, const size_t pairs_num);
 
 #ifdef __cplusplus
 }

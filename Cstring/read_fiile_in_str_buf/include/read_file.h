@@ -19,25 +19,34 @@ typedef struct {
     char token[INFO_TOKEN_MAX_LEN];
 } param_info_t;
 
+#define PARAM_INFO_T_ELEMENT_SIZE sizeof(((param_info_t *)0)->pid)
+#define PARAM_INFO_T_NUM_ELEMENTS (sizeof(param_info_t) / PARAM_INFO_T_ELEMENT_SIZE)
+
+#define PARAM_INFO_T_STR_MAX_LEN            (16)
+
 typedef struct {
     char *key;
     char *value;
 } pairs_info_t;
 
 // 读取filepath的信息保存到info中
+// in:
+// filepath 路径
+// (*key_str_arr)[PARAM_INFO_T_STR_MAX_LEN] 指针数组
+// param_info_t info信息
 // 返回值：
 // 0  读取成功
 // -1 读取失败
-int read_file(const char *filepath, param_info_t *info, size_t *info_num);
+int read_file(const char *filepath, char (*key_str_arr)[PARAM_INFO_T_STR_MAX_LEN], param_info_t *info);
 
 // 生成pair_info键值对
 // 返回值：
 // 0  生成成功
 // -1 生成失败
-int gen_pairs_info(param_info_t *info, size_t pairs_num, pairs_info_t **pairs);
+int gen_pairs_info(param_info_t *info, const char (*info_arr)[PARAM_INFO_T_STR_MAX_LEN], size_t pairs_num, pairs_info_t *pairs);
 
 // 释放pair_info内存
-int free_pairs_info(pairs_info_t **pairs, size_t pairs_num);
+int free_pairs_info(pairs_info_t *pairs, size_t pairs_num);
 
 // 获取应用程序的绝对路径
 // 返回值：

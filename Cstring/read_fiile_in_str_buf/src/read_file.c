@@ -19,13 +19,13 @@ char *str_trim(char *str) {
     return str;
 }
 
-int read_file(const char *filepath, param_info_t *info, size_t *info_num) {
-    if (!filepath || !info) return -1;
+int read_file(const char *filepath, char (*key_str_arr)[PARAM_INFO_T_STR_MAX_LEN], param_info_t *info) {
+    if (!filepath || !key_str_arr || !info) return -1;
 
     FILE *fp = fopen(filepath, "r");
     if (fp == NULL) return -1;
 
-    size_t line_count = 0;
+    size_t i = 0;
     char line[CONFIG_INFO_LINE_MAX_LEN] = {0};
     while (fgets(line, sizeof(line), fp)) {
         char *pos = strchr(line, '=');
@@ -45,13 +45,11 @@ int read_file(const char *filepath, param_info_t *info, size_t *info_num) {
             } else if (!strcmp(key, "secret")) {
                 strncpy(info->secret, value, sizeof(info->secret));
             } 
-            line_count++;
+            strncpy(key_str_arr[i++], key, PARAM_INFO_T_STR_MAX_LEN - 1);
+            key_str_arr[i][PARAM_INFO_T_STR_MAX_LEN - 1] = '\0';
         }
     }
-
-    *info_num = line_count;
     fclose(fp);
-
     return 0;
 }
 
@@ -102,31 +100,26 @@ int get_config_file_path(char *path) {
     return 0;
 }
 
-int gen_pairs_info(param_info_t *info, size_t pairs_num, pairs_info_t **pairs) {
-    if (!info || pairs_num == 0) return -1;
-
-    const char *info_arr[] = {"pid", "uuid", "secret", "token"};
-
-    *pairs = (pairs_info_t*)malloc(sizeof(pairs_info_t) * pairs_num);
-    if (!(*pairs)) return -1;
+int gen_pairs_info(param_info_t *info, const char (*info_arr)[PARAM_INFO_T_STR_MAX_LEN], size_t pairs_num, pairs_info_t *pairs) {
+    if (!info || !info_arr || pairs_num == 0 || !pairs) return -1;
 
     for (size_t i = 0; i < pairs_num; i++) {
-        (*pairs)[i].key = strdup(info_arr[i]);
+        pairs[i].key = strdup(info_arr[i]);
 
         if (!strcmp(info_arr[i], "pid")) {
-            (*pairs)[i].value = strdup(info->pid);
+            pairs[i].value = strdup(info->pid);
         } else if (!strcmp(info_arr[i], "uuid")) {
-            (*pairs)[i].value = strdup(info->uuid);
+            pairs[i].value = strdup(info->uuid);
         } else if (!strcmp(info_arr[i], "secret")) {
-            (*pairs)[i].value = strdup(info->secret);
+            pairs[i].value = strdup(info->secret);
         } else if (!strcmp(info_arr[i], "token")) {
-            (*pairs)[i].value = strdup(info->token);
+            pairs[i].value = strdup(info->token);
         } else {
-            (*pairs)[i].value = NULL;
+            pairs[i].value = NULL;
         }
 
-        if (!(*pairs)[i].key || !(*pairs)[i].value) { // 内存分配失败
-            free_pairs_info(*pairs, i);
+        if (!pairs[i].key || !pairs[i].value) { // 内存分配失败
+            free_pairs_info(pairs, i);
             return -1;
         }
     }
@@ -134,11 +127,12 @@ int gen_pairs_info(param_info_t *info, size_t pairs_num, pairs_info_t **pairs) {
     return 0;
 }
 
-int free_pairs_info(pairs_info_t **pairs, size_t pairs_num) {
+int free_pairs_info(pairs_info_t *pairs, size_t pairs_num) {
     for (size_t i = 0; i < pairs_num; i++) {
-        if ((*pairs)[i].key) { free((*pairs)[i].key); (*pairs)[i].key = NULL; }
-        if ((*pairs)[i].value) { free((*pairs)[i].value); (*pairs)[i].value = NULL; }
+        if (pairs[i].key) { free(pairs[i].key); pairs[i].key = NULL; }
+        if (pairs[i].value) { free(pairs[i].value); pairs[i].value = NULL; }
     }
-    free(*pairs);
+    free(pairs);
+    pairs = NULL;
     return 0;
 }
