@@ -94,7 +94,9 @@ int get_config_file_path(char *path) {
     }
 
     char config_path[FILE_PATH_MAX_LEN] = {0};
-    snprintf(config_path, sizeof(config_path), "%s"CONFIG_PATH, exe_path);
+    strncpy(config_path, exe_path, sizeof(config_path) - 1);  // 留一个位置给 null 终止符
+    strncat(config_path, CONFIG_PATH, sizeof(config_path) - strlen(config_path) - 1);
+
     strncpy(path, config_path, sizeof(config_path));
 
     return 0;
