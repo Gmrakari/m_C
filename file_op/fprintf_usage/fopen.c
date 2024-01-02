@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#define FILE_PATH "../res/debug_info.txt"
+#define FILE_PATH_MAX_LEN (256)
+
 void fileOp()
 {
     int cnt = 3;
-    char filepath[] = "/home/gmrakari/github/m_C/Cstring/debug_info.txt";
+    char filepath[FILE_PATH_MAX_LEN] = {0};
+    strncpy(filepath, FILE_PATH, sizeof(filepath));
     char *buffer = "\"iccid\":\"898604A4192170153703\"";
     char iccid[21] = {0};
     const char endbuf[] = "\n";
@@ -17,15 +21,15 @@ void fileOp()
 
     if ((fd = fopen(filepath, "ab+")) == NULL)
     {
-        printf("failed to open files\n");
+        perror("failed to open files\n");
         return;
     }
 
     fprintf(fd, endbuf);
     while (cnt--)
     {
-        fprintf(fd, iccid);
-        fprintf(fd, endbuf);
+        fprintf(fd, "%s", iccid);
+        fprintf(fd, "%s", endbuf);
     }
 
     fclose(fd);
