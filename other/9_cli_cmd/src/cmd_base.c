@@ -45,7 +45,6 @@ void help_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
     int i, n;
     uint32_t cmd_list_count = private.cmd_list_size;
 
-    // printf( "====cmd list Commands====\r\n" );
     for (i = 0, n = 0; i < MAX_CMD_COUNT && n < private.pCli->num_commands; i++)
     {
         if (private.pCli->commands[i]->name)
@@ -54,25 +53,39 @@ void help_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
                       private.pCli->commands[i]->help ?
                       private.pCli->commands[i]->help : "");
             n++;
-            // if( n == cmd_list_count )
-            // {
-            //     printf("\r\n====User Commands====\r\n");
-            // }
         }
     }
 }
 
 void time_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-    int i, n;
-    // uint32_t cmd_list_count = private.cmd_list_size;
+    char help[] = "help";
 
-    if (argc > 1 && !strcmp(argv[1], private.pCli->commands[i]->help)) {
-        printf("%s\r\n", private.pCli->commands[i]->help);
+    if (argc == 2 && !strcmp(argv[1], help)) {
+        printf("Usage:\r\ntime\r\n");
+        return ;
     }
 
-    printf("time:1\r\n");
+#if 0
+    if (argc > 1) {
+        char buff[32] = {0};
+        char space[] = " ";
+        for (int i = 1; i < argc; i++) {
+            strcat(buff, argv[i]);
+            if (i != argc - 1) {
+                strcat(buff, space);
+            }
+        }
 
+        for (int i = 0; i < private.pCli->num_commands; i++) {
+            if (private.pCli->commands[i]->help && !strcmp(buff, private.pCli->commands[i]->help)) {
+                printf("help:%s\r\n", private.pCli->commands[i]->help);
+            }
+        }
+    }
+#endif
+
+    printf("time:1\r\n");
 }
 
 void test_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -87,13 +100,6 @@ void test_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
     uint32_t cmd_3_value;
 
     uint32_t cmd3;
-
-    #if 0
-    for(i = 0; i < argc; i++)
-    {
-        printf("Argument %d = %s\r\n", i + 1, argv[i]);
-    }
-    #endif
 
     if(argc == 4)
     {
