@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 #include "cJSON.h"
 
@@ -25,8 +27,32 @@ static void test_1()
     cJSON_Delete(root);
 }
 
+static void test_2() 
+{
+    char str[] = {"{\"p\":\"vows1jnkpdpaizrk\",\"v\":\"1.0.0\",\"cap\":24}"};
+    cJSON *obj = cJSON_Parse(str);
+
+    char *unformat_str = cJSON_PrintUnformatted(obj);
+
+    printf("%s\r\n", unformat_str);
+
+    uint8_t *ptr = unformat_str;
+
+    for (int i = 0; ptr[i] != '\0'; i++) {
+        printf("%02X", ptr[i]);
+    }
+    printf("\r\n");
+
+    free(unformat_str);
+
+    cJSON_Delete(obj);
+}
+
 int main() 
 {
-    test_1();
+    // test_1();
+
+    test_2();
+
     return 0;
 }
