@@ -19,14 +19,18 @@ int main ()
    char str1[15];
    char str2[15];
    char str3[15];
+   char str4[15];
    int ret;
 
    memcpy(str1, "abcdef", 6);
    memcpy(str2, "ABCDEF", 6);
    memcpy(str3, "ABCDE", 5);
+   memcpy(str4, "abcdef", 6);
 
-   ret = memcmp(str1, str2, 5); // str2 小于 str1
+   // ret = memcmp(str1, str2, 5); // str2 小于 str1
 //    ret = memcmp(str2, str3, 5);    // str2 等于 str3
+
+   ret = memcmp(str1, str4, strlen("abcdef"));
 
    if(ret > 0)
    {
