@@ -1,9 +1,9 @@
 #include "binary_op.h"
 
 #define USE_READ_BITS_TEST 0
-#define USE_SET_BITS_TEST 0
+#define USE_SET_BITS_TEST 1
 #define USE_CLEAR_BITS_TEST 0
-#define USE_CHECK_IS_POWER_TEST 1
+#define USE_CHECK_IS_POWER_TEST 0
 
 
 void read_bits_test(bin_op_t *bin_op)
@@ -19,11 +19,11 @@ void read_bits_test(bin_op_t *bin_op)
 
 void set_bits_test(unsigned int reg, bin_op_t *bin_op)
 {
-    bin_op->set_bits(reg, 0);
+    bin_op->set_bits(reg, 0, 1);
     printf("\r\n");
-    bin_op->set_bits(reg, 1);
+    bin_op->set_bits(reg, 1, 1);
     printf("\r\n");
-    bin_op->set_bits(reg, 2);
+    bin_op->set_bits(reg, 2, 1);
 }
 
 static void _clear_bit_test(unsigned int reg, bin_op_t *bin_op)

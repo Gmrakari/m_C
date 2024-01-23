@@ -51,10 +51,15 @@ unsigned int _read_bits(int theKbit)
  * @param theKbit 设置第K位
  * @return size_t 将theKbit设置为1
  */
-unsigned int _set_bits(unsigned int reg, int theKbit)
+unsigned int _set_bits(unsigned int reg, int theKbit, int value)
 {
     unsigned int ret = 0;
-    reg |= (1 << theKbit);
+    if (value) {
+        reg |= (1 << theKbit);
+    } else {
+        reg &= ~(1 << theKbit);
+    }
+
     ret = reg;
 
     printf("value:0x%08x\r\n", ret);

@@ -5,7 +5,7 @@
 
 typedef struct {
     unsigned int (*read_bits)(int theKbit);
-    unsigned int (*set_bits)(unsigned int reg, int theKbit);
+    unsigned int (*set_bits)(unsigned int reg, int theKbit, int value);
     unsigned int (*clear_bits)(unsigned int *reg, int theKbit);
     int (*check_is_power2)(int number);
     void (*print)(unsigned int *reg);
