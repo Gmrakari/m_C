@@ -39,6 +39,11 @@ void write_n_to_buffer(ring_buffer_t *ring_buf, const uint8_t *data, uint32_t nu
     }
 }
 
+int ring_buffer_len(ring_buffer_t *ring_buffer, int *out)
+{
+    return *out = ring_buffer->tail;
+}
+
 // 从环形缓冲区读取1个数据
 uint32_t read_from_buffer(ring_buffer_t *ring_buf, uint8_t *data) {
     if (ring_buf->head != ring_buf->tail) {
@@ -74,6 +79,17 @@ int main() {
     // Writing data to the buffer
     uint8_t write_data[] = {1, 2, 3, 4, 5};
     write_n_to_buffer(&my_buffer, write_data, sizeof(write_data));
+
+    uint8_t buf[10];
+    uint32_t read_nbytes = read_all_from_buffer(&my_buffer, buf);
+    for (int i = 0; i < 10; i++) {
+        printf("%d", buf[i]);
+    }
+    printf("\r\n");
+
+    int tail_len = 0;
+    tail_len = ring_buffer_len(&my_buffer, &tail_len);
+    printf("tai_len:%d\r\n", tail_len);
 
     // Reading 1 element from the buffer
     uint8_t read_data;
@@ -120,6 +136,9 @@ int main() {
         printf("%d ", read_data_final[i]);
     }
     printf("\n");
+
+    tail_len = ring_buffer_len(&my_buffer, &tail_len);
+    printf("tai_len:%d\r\n", tail_len);
 
     destroy_ring_buffer(&my_buffer);  // Clean up
 
