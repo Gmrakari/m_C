@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "struct.h"
+#include <stdint.h>
 
 // 定义一个struct结构体
 typedef struct _tag_person_t{
@@ -33,6 +34,24 @@ typedef struct {
         char name_value[20];
     } data;
 } union_info_t;
+
+typedef struct fw_header {
+    union {
+        struct {
+            uint8_t header[16];
+
+            uint8_t type[4];        // RAW or XZ
+            uint32_t len;           // body len
+            uint8_t pad0[8];
+
+            uint8_t ver_hardware[16];
+            uint8_t ver_software[16];
+
+            uint8_t sha256[32];
+        } s;
+        uint8_t _pad[512];
+    } u;
+} fw_header_t;
 
 void struct_app()
 {
@@ -105,4 +124,51 @@ void struct_in_union_app(void)
     default:
         break;
     }
+}
+
+// 读取数据
+static void read_fw_header(const fw_header_t *header) {
+    if (header == NULL) {
+        printf("Invalid header pointer\n");
+        return;
+    }
+
+    // 读取结构体数据
+    printf("Header: %s\n", header->u.s.header);
+    printf("Type: %s\n", header->u.s.type);
+    printf("Length: %u\n", header->u.s.len);
+    printf("Hardware Version: %s\n", header->u.s.ver_hardware);
+    printf("Software Version: %s\n", header->u.s.ver_software);
+    printf("SHA256: %s\n", header->u.s.sha256);
+}
+
+// 写入数据
+static void write_fw_header(fw_header_t *header) {
+    if (header == NULL) {
+        printf("Invalid header pointer\n");
+        return;
+    }
+
+    // 设置结构体数据
+    strcpy((char *)header->u.s.header, "OTA Header");
+    strcpy((char *)header->u.s.type, "XZ");
+    header->u.s.len = 1024;
+    strcpy((char *)header->u.s.ver_hardware, "HW Version");
+    strcpy((char *)header->u.s.ver_software, "SW Version");
+    strcpy((char *)header->u.s.sha256, "ABCDEF1234567890");
+}
+
+void struct_in_union_app_in_project_demo()
+{
+    fw_header_t header;
+
+    printf("Before Header:\n");
+    read_fw_header(&header);
+
+    // 写入数据
+    write_fw_header(&header);
+
+    // 打印写入后的数据
+    printf("Written Header:\n");
+    read_fw_header(&header);
 }
