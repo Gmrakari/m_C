@@ -3,6 +3,10 @@
 
 #include "../include/http.h"
 #include "../include/host_to_ip.h"
+#include "../include/cal_sha256.h"
+
+#define TIMEOUT_SEC         0           // 0 m
+#define TIMEOUT_USEC        100000 * 5  // 100 * 5 ms
 
 // static void (*download_cb)(const char *filepath, const char *response, const size_t len) = NULL;
 
@@ -162,25 +166,25 @@ static uint32_t handle_http_response_header(const char *data, size_t *out_header
     return ret;
 }
 
-uint32_t http_get(const char *url) {
+int http_get(const char *url) {
     if (!url) return -1;
-
+DEBUG_MSG();
     int ret = -1;
-
+DEBUG_MSG();
     url_package_t url_info = {0};
     if (0 != (ret = parse_url(url, strlen(url), &url_info))) { ret = -1; return NULL; }
-
+DEBUG_MSG();
     uint8_t *ip_buf = NULL;
     uint8_t ip[16] = {0};
     if (NULL == (ip_buf = host_to_ip(url_info.host)))
         return NULL;
-
+DEBUG_MSG();
     memcpy(ip, ip_buf, sizeof(ip));
     if (!ip_buf) { free(ip_buf); ip_buf = NULL; }
-
+DEBUG_MSG();
     int sockfd = -1;
     if (-1 == (sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))) { ret = -1; goto _exit; }
-
+DEBUG_MSG();
     // tcp client
     uint16_t port = 0;
     sscanf(url_info.port, "%d", &port);
@@ -192,25 +196,55 @@ uint32_t http_get(const char *url) {
     server_addr.sin_addr.s_addr = inet_addr(ip);
     memset(&(server_addr.sin_zero), 0, sizeof(server_addr.sin_zero));
 
-    if (-1 == connect(sockfd, (struct sockadd *)&server_addr, sizeof(struct sockaddr))) { ret = -1; goto _exit; }
+    // 设置连接超时
+    struct timeval timeout;
+    timeout.tv_sec = TIMEOUT_SEC;
+    timeout.tv_usec = TIMEOUT_USEC;
 
+    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
+        perror("setsockopt");
+        close(sockfd);
+        return 1;
+    }
+
+DEBUG_MSG();
+    if (-1 == connect(sockfd, (struct sockadd *)&server_addr, sizeof(struct sockaddr))) {
+        if (errno == EINPROGRESS) {
+            fd_set fdset;
+            FD_ZERO(&fdset);
+            FD_SET(sockfd, &fdset);
+
+            ret = select(sockfd + 1, NULL, &fdset, NULL, &timeout);
+            if (ret == -1) {
+                perror("select");
+                goto _exit;
+            } else if (ret == 0) {
+                printf("Connection timed out\r\n");
+                ret = -1;
+                goto _exit;
+            }
+        }
+        ret = -1; DEBUG_MSG();
+        goto _exit; 
+    }
+DEBUG_MSG();
     char *request = NULL;
     request = create_http_get_request(url_info.path, url_info.host, url_info.port);
     if (!request) { ret = -1; goto _exit; }
-
+DEBUG_MSG();
     size_t req_header_len = strlen(request);
     size_t write_to_net_len = send(sockfd, request, req_header_len, 0);
-
+DEBUG_MSG();
     if (req_header_len != write_to_net_len) { DEBUG_MSG();
         ret = -1;
         free(request);
         request = NULL;
         goto _exit;
     }
-
+DEBUG_MSG();
     free(request);
     request = NULL;
-
+DEBUG_MSG();
     char response[BUFF_SIZE] = {0};
 
     ssize_t bytes_received = 0;
@@ -222,12 +256,12 @@ uint32_t http_get(const char *url) {
     uint8_t need_handle_rsp_header = 1;
     uint8_t need_save_resp_data = 0;
     size_t offset = 0;
-
+DEBUG_MSG();
     while (1) {
         // 接收http响应
         bytes_received = recv(sockfd, response, BUFF_SIZE, 0);
         offset += bytes_received;
-
+DEBUG_MSG();
         if (offset == BUFF_SIZE) {
             if (need_handle_rsp_header) {
                 ret = handle_http_response_header(response, &header_length, &content_length);
@@ -264,13 +298,13 @@ uint32_t http_get(const char *url) {
                 free(http_data);
                 http_data = NULL;
                 break;
-            }
-        } else {
+            }DEBUG_MSG();
+        } else {DEBUG_MSG();
             break;
         }
     }
-
-_exit:
+DEBUG_MSG();
+_exit:DEBUG_MSG();
     if (sockfd >= 0) close(sockfd);
     return ret;
 }

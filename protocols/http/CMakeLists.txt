@@ -14,4 +14,7 @@ add_executable(app main.c)
 # 链接主程序和子目录中的库
 target_link_libraries(app http_utils)
 
+# 链接 OpenSSL 库
+target_link_libraries(app -lssl -lcrypto)
+
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)

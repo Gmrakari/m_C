@@ -16,6 +16,8 @@
     do { \
         printf("[%d][%s]"format"\r\n", __LINE__, __func__, ##__VA_ARGS__); \
     } while (0);
+#else
+    #define DEBUG_MSG(format, ...)
 #endif
 
 #define PARSE_URL_PTL_SIZE  (8)
@@ -45,6 +47,6 @@ void func(void);
 
 // char *http_get(const char *url);
 
-uint32_t http_get(const char *url);
+int http_get(const char *url);
 
 #endif // _UTILS_HTTP_H
