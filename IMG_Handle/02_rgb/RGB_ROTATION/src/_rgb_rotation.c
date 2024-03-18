@@ -5,8 +5,11 @@
 
 #include "_rgb_rotation.h"
 
-static uint8_t s_src_img_buffer[128 * 128 * 3] = {0};
-static uint8_t s_dest_img_buffer[128 * 128 * 3] = {0};
+#define READ_JPEG_FILE_PATHNAME  "../01_input.jpg"
+#define WRITE_RGB_FILE_PATHNAME  "../01_output.rgb888"
+
+static uint8_t s_src_img_buffer[320 * 240 * 3] = {0};
+static uint8_t s_dest_img_buffer[320 * 240 * 3] = {0};
 
 void _read_img_data_from_fp(image_t *img, const char *filename)
 {
@@ -71,21 +74,21 @@ void app_test()
 {
     image_t src_rgb_img = {
             .addr = s_src_img_buffer,
-            .width = 128,
-            .height = 128,
+            .width = 320,
+            .height = 240,
             .pixel = 3,
     };
     image_t dest_rgb_img = {
             .addr = s_dest_img_buffer,
-            .width = 128,
-            .height = 128,
-            .pixel = 3
+            .width = 320,
+            .height = 240,
+            .pixel = 3,
     };
 
-    const char read_img_path[] = "/home/gmrakari/CLionProjects/RGB_IMG_HANDLE/IMG/src.rgb";
-    const char write_img_path[] = "/home/gmrakari/CLionProjects/RGB_IMG_HANDLE/IMG/dest.rgb";
+    const char read_img_path[] = READ_JPEG_FILE_PATHNAME;
+    const char write_img_path[] = WRITE_RGB_FILE_PATHNAME;
 
     _read_img_data_from_fp(&src_rgb_img, read_img_path);
-    _rgb_img_rotation(&src_rgb_img, &dest_rgb_img);
-    _save_rgb_img(&dest_rgb_img, write_img_path);
+    // _rgb_img_rotation(&src_rgb_img, &dest_rgb_img);
+    _save_rgb_img(&src_rgb_img, write_img_path);
 }
