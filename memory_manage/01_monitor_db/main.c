@@ -1,14 +1,12 @@
-#include "db.h"
 #include <stdio.h>
-
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 
-// 4m
-#define MEM_SIZE (4 * 1024 * 1024)
+#include "db.h"
+#include "utils/db_conf.h"
 
 int main()
 {
