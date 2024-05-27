@@ -7,11 +7,11 @@
  *  Sector size         = BLOCK_SIZE
  *  Head size           = sizeof(db_header_t)
  *  None size           = BLOCK_SIZE - sizeof(db_header_t)
- *  All face info size  = DB_NUM * DB_ITEM_SIZE    (Valid size is sizeof(db_item_t))
+ *  All user info size  = DB_NUM * DB_ITEM_SIZE    (Valid size is sizeof(db_item_t))
  *  ___________________________________________________________________________
  * |      Sector0      |      Sector1      |      ...      |      SectorN      |
  * |___________________|___________________|_______________|___________________|
- * | Head |    None    |                      All face info                    |
+ * | Head |    None    |                      All user info                    |
  * |______|____________|_______________________________________________________|
 */
 
