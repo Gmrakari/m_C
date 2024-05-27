@@ -113,12 +113,12 @@ int rlink_uartp_tmp_passwd_list_query_id(uartp_tmp_passwd_list_t *list, uint16_t
         return -1;
     }
 
-    int ret = -1;
+    int ret = 0;
 
     uartp_tmp_passwd_node_t *cur = list->head;
     while (cur != NULL) {
         if (cur->data.idx == idx) {
-            ret = 0;
+            ret = 1;
             return ret;
         }
         cur = cur->next;
@@ -134,21 +134,14 @@ int rlink_uartp_tmp_passwd_list_append(uartp_tmp_passwd_list_t *list, uartp_tmp_
         return -1;
     }
 
-    int null_list = 0;
-
-    if (list == NULL) {
-        rlink_uartp_init_tmp_passwd_list(list);
-        null_list = 1;
-    }
-
     int ret = 0;
-    if (!null_list) {
-        ret = rlink_uartp_tmp_passwd_list_query_id(list, data->idx);
-        if (ret != 0) {
-            printf("[%s][%d]rlink_uartp_tmp_passwd_list_query_id err!\r\n", __func__, __LINE__);
-            ret = -1;
-            return ret;
-        }
+
+    ret = rlink_uartp_tmp_passwd_list_query_id(list, data->idx);
+    printf("ret:%d\r\n", ret);
+    if (ret == -1 || ret == 1) {
+        printf("[%s][%d]rlink_uartp_tmp_passwd_list_query_id err!\r\n", __func__, __LINE__);
+        ret = -1;
+        return ret;
     }
 
     uartp_tmp_passwd_node_t *new_node = (uartp_tmp_passwd_node_t*)malloc(sizeof(uartp_tmp_passwd_node_t));
@@ -376,17 +369,17 @@ int rlink_write_uartp_tmp_passwd_list_to_flash(uartp_tmp_passwd_list_t *list)
     uint8_t *out = NULL;
     uint16_t olen = 0;
 
-    uint8_t list_node_num = 0;
-    ret = rlink_uartp_tmp_passwd_list_get_num(list, &list_node_num);
+    ret = rlink_uartp_serialize_tmp_passwd_list(list, &out, &olen);
     if (ret != 0) {
-        printf("[%s][%d]rlink_uartp_tmp_passwd_list_get_num err!\r\n", __func__, __LINE__);
+        printf("[%s][%d]rlink_uartp_serialize_tmp_passwd_list err!\r\n", __func__, __LINE__);
         ret = -1;
         return ret;
     }
 
-    ret = rlink_uartp_serialize_tmp_passwd_list(list, &out, &olen);
+    uint8_t list_node_num = 0;
+    ret = rlink_uartp_tmp_passwd_list_get_num(list, &list_node_num);
     if (ret != 0) {
-        printf("[%s][%d]rlink_uartp_serialize_tmp_passwd_list err!\r\n", __func__, __LINE__);
+        printf("[%s][%d]rlink_uartp_tmp_passwd_list_get_num err!\r\n", __func__, __LINE__);
         ret = -1;
         return ret;
     }
@@ -488,3 +481,45 @@ int rlink_read_from_flash_get_list_data(uint8_t **out, uint16_t *out_len)
     return ret;
 }
 
+static void print_tmp_passwd_info(uartp_tmp_passwd_t *passwd_info)
+{
+    if (!passwd_info) {
+        printf("[%s][%d]invalid pararm!\r\n", __func__, __LINE__);
+        return ;
+    }
+
+    printf("Password Info:\n");
+    printf("idx: %u\n", passwd_info->idx);
+    printf("device_id: %u\n", passwd_info->device_id);
+    printf("passwd_len: %u\n", passwd_info->passwd_len);
+    printf("passwd: %.*s\n", passwd_info->passwd_len, passwd_info->passwd);
+    printf("time_type: %u\n", passwd_info->time_type);
+    printf("active_time: %u\n", passwd_info->active_time);
+    printf("expired_time: %u\n", passwd_info->expired_time);
+    printf("active_time: %s\n",passwd_info->start_time);
+    printf("end_time: %s\n", passwd_info->end_time);
+    printf("loops: %s\n",passwd_info->loops);
+
+    printf("\r\n");
+
+    return ;
+}
+
+int debug_print_list_info(uartp_tmp_passwd_list_t *list)
+{
+    if (!list) {
+        printf("[%s][%d]debug_print_list_info err!\r\n", __func__, __LINE__);
+        return -1;
+    }
+
+    int ret = 0;
+
+    uartp_tmp_passwd_node_t *cur = list->head;
+
+    while (cur != NULL) {
+        print_tmp_passwd_info(&(cur->data));
+        cur = cur->next;
+    }
+
+    return ret;
+}

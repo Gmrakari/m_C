@@ -297,8 +297,65 @@ int db_list_app(void)
 
     printf("[%s][%d]cur num: %d\r\n", __func__, __LINE__, num);
 
+    uartp_tmp_passwd_t passwd;
+    // uartp_tmp_passwd_t passwd2;
+    // uartp_tmp_passwd_t passwd3;
+    _init_uartp_tmp_passwd_param(&passwd, 1);
 
+    uartp_tmp_passwd_list_t list;
 
+    ret = rlink_uartp_init_tmp_passwd_list(&list);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_uartp_init_tmp_passwd_list err!\r\n", __func__, __LINE__);
+        ret = -1;
+        return ret;
+    }
+
+    ret = rlink_uartp_tmp_passwd_list_append(&list, &passwd);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_uartp_tmp_passwd_list_append err!\r\n", __func__, __LINE__);
+        ret = -1;
+        return ret;
+    }
+
+    ret = rlink_write_uartp_tmp_passwd_list_to_flash(&list);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_write_uartp_tmp_passwd_list_to_flash err!\r\n", __func__, __LINE__);
+        ret = -1;
+        return ret;
+    }
+
+    ret = rlink_read_from_flash_get_tmp_passwd_num(&num);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_read_from_flash_get_tmp_passwd_num err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    printf("[%s][%d]cur num: %d\r\n", __func__, __LINE__, num);
+
+    uint8_t *out_list = NULL;
+    uint16_t out_list_len = 0;
+    ret = rlink_read_from_flash_get_list_data(&out_list, &out_list_len);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_read_from_flash_get_list_data err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    // rlink_uartp_serialize_tmp_passwd_list()
+
+    ret = rlink_uartp_deserialize_tmp_passwd_list(&list, out_list, out_list_len);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_uartp_deserialize_tmp_passwd_list err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    if (out_list) {
+        free(out_list);
+        out_list = NULL;
+    }
+
+    // _init_uartp_tmp_passwd_param(&passwd2, 2);
+    // _init_uartp_tmp_passwd_param(&passwd3, 3);
 
     free_fd_mem();
 
