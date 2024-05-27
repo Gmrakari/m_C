@@ -21,6 +21,7 @@ int gen_url(char **out_url, int *out_url_len)
 
     printf("ts_str:%s\r\n", ts_str);
     printf("ts:%ld\r\n", ts);
+    printf("ts second:%ld\r\n", ts * 1000);
 
     int url_len = strlen(WS_URL) + 1             // ?
                  + strlen("uuid=") + strlen(uuid) + 1              // &
@@ -63,14 +64,17 @@ static int _test_01()
 {
     char *url = NULL;
     int url_len = 0;
-    int err = gen_url(&url, &url_len);
-    if (err != 0) {
-        printf("gen_url err!\r\n");
-    }
 
-    if (url) {
-        free(url);
-        url = NULL;
+    for (int i = 0; i < 3; i++) {
+        int err = gen_url(&url, &url_len);
+        if (err != 0) {
+            printf("gen_url err!\r\n");
+        }
+
+        if (url) {
+            free(url);
+            url = NULL;
+        }
     }
 }
 
