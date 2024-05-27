@@ -38,9 +38,9 @@ void _struct_timeval_func_member_use_func()
         printf("gettimeofday failed!\r\n");
         return;
     }
-    printf("second(t_now.tv_sec):%ld\r\n", t_now.tv_sec);
-    printf("millisecond(t_now.tv_usec * 1000 + t_now.tv_usec / 1000):%ld\r\n", t_now.tv_usec * 1000 + t_now.tv_usec / 1000);
-    printf("microsecond:(t_now.tv_sec * 1000 * 1000 + t_now.tv_usec):%ld\r\n", t_now.tv_sec * 1000 * 1000 + t_now.tv_usec);
+    printf("second(t_now.tv_sec):%lld\r\n", t_now.tv_sec);
+    // printf("millisecond(t_now.tv_usec * 1000 + t_now.tv_usec / 1000):%lld\r\n", (t_now.tv_usec * 1000 + t_now.tv_usec / 1000));
+    printf("microsecond:(t_now.tv_sec * 1000 * 1000 + t_now.tv_usec):%lld\r\n", t_now.tv_sec * 1000 * 1000 + t_now.tv_usec);
 
     return;
 }
@@ -74,8 +74,10 @@ void _struct_timeval_cal_different_time_func()
     printf("time_end :%ld\r\n", time_end);
 
     t_differ_last = (time_end.tv_sec - time_start.tv_sec) * 1000 + (time_end.tv_usec - time_start.tv_usec) / 1000;
+    unsigned long int t_differ_sec_last = t_differ_last / 1000;
 
     printf("t_differ_last(毫秒):%ld\r\n", t_differ_last);
+    printf("t_differ_sec_last(秒):%lld\r\n", t_differ_sec_last);
 
     return;
 }
@@ -92,7 +94,7 @@ void _get_microseconds_time_func() {
 
     printf("time:%ld\r\n", time(&info));
 
-    printf("localtime(&t):%ld\r\n", localtime(&t));
+    printf("localtime(&t):%lld\r\n", localtime(&t));
 
 }
 
@@ -105,13 +107,26 @@ void sleep_func()
 
 int main()
 {
-    #if 0
-    printf("-------------------------------------------------------------\r\n");
-    _struct_timeval_func_member_use_func();
-    printf("-------------------------------------------------------------\r\n");
-    _struct_timeval_cal_different_time_func();
-    printf("-------------------------------------------------------------\r\n");
-    #endif
+    // #if 1
+    // printf("-------------------------------------------------------------\r\n");
+    // _struct_timeval_func_member_use_func();
+    // printf("-------------------------------------------------------------\r\n");
+    // _struct_timeval_cal_different_time_func();
+    // printf("-------------------------------------------------------------\r\n");
+    // #endif
+
+    for (int i = 0; i < 2; i++) {
+        printf("\r\n");
+        #if 1
+        printf("-------------------------------------------------------------\r\n");
+        _struct_timeval_func_member_use_func();
+        printf("-------------------------------------------------------------\r\n");
+        _struct_timeval_cal_different_time_func();
+        printf("-------------------------------------------------------------\r\n");
+        #endif
+        printf("\r\n");
+        sleep(1);
+    }
 
     _get_microseconds_time_func();
 }
