@@ -414,6 +414,11 @@ int rlink_write_uartp_tmp_passwd_list_to_flash(uartp_tmp_passwd_list_t *list)
     ret = rlink_uartp_tmp_passwd_list_get_num(list, &list_node_num);
     if (ret != 0) {
         printf("[%s][%d]rlink_uartp_tmp_passwd_list_get_num err!\r\n", __func__, __LINE__);
+
+        if (out) {
+            free(out);
+            out = NULL;
+        }
         ret = -1;
         return ret;
     }
@@ -421,6 +426,11 @@ int rlink_write_uartp_tmp_passwd_list_to_flash(uartp_tmp_passwd_list_t *list)
     ret = rlink_uartp_destroy_tmp_passwd_list(list);
     if (ret != 0) {
         printf("[%s][%d]rlink_uartp_destroy_tmp_passwd_list err!\r\n", __func__, __LINE__);
+
+        if (out) {
+            free(out);
+            out = NULL;
+        }
         ret = -1;
         return ret;
     }
