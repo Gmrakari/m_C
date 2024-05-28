@@ -189,7 +189,7 @@ static int _init_uartp_tmp_passwd_param(uartp_tmp_passwd_t *passwd, int idx)
 
 }
 
-static void print_uartp_tmp_passwd(const uartp_tmp_passwd_t *passwd_info)
+static void print_uartp_tmp_passwd(uartp_tmp_passwd_t *passwd_info)
 {
     if (!passwd_info) {
         printf("[%s][%d]invalid pararm!\r\n", __func__, __LINE__);
@@ -224,57 +224,9 @@ int tmp_passwd_db_list_app(void)
     memset(ptr, 0x00, DEFAULT_MEM_SIZE);
 #endif
 
-#if USE_READ_FROM_FLASH
-    init_tmp_passwd_info(ptr);
-
-    int ret = 0;
-    uint8_t passwd_num = 0;
-    uint8_t *pass_list = NULL;
-
-    uartp_tmp_passwd_t tmp;
-
-    uartp_tmp_passwd_t passwd;
-    uartp_tmp_passwd_t passwd2;
-    uartp_tmp_passwd_t passwd3;
-    _init_uartp_tmp_passwd_param(&passwd, 1);
-    _init_uartp_tmp_passwd_param(&passwd2, 2);
-    _init_uartp_tmp_passwd_param(&passwd3, 3);
-
-    uint16_t find_idx = 802;
-
-    uint32_t print_offset = sizeof(uartp_tmp_passwd_t);
-    if (read_tmp_passwd_node_info_from_flash(ptr, &passwd_num, &pass_list) == 0) {
-        printf("[%s][%d]passwd_num: %d\r\n", __func__, __LINE__, passwd_num);
-
-        for (int i = 0; i < passwd_num; i++) {
-            memset(&tmp, 0x00, sizeof(uartp_tmp_passwd_t));
-            memcpy(&tmp, pass_list + (print_offset * i), sizeof(uartp_tmp_passwd_t));
-            if (tmp.idx == find_idx) {
-                print_uartp_tmp_passwd(&tmp);
-            }
-        }
-        free(pass_list);
-    }
-#endif
-
-#if USE_WRITE_TO_FLASH
-    ret = write_tmp_passwd_node_info_from_flash(ptr, &passwd);
-
-    ret = write_tmp_passwd_node_info_from_flash(ptr, &passwd2);
-
-    ret = write_tmp_passwd_node_info_from_flash(ptr, &passwd3);
-
-    if (read_tmp_passwd_node_info_from_flash(ptr, &passwd_num, &pass_list) == 0) {
-        printf("[%s][%d]passwd_num: %d\r\n", __func__, __LINE__, passwd_num);
-        free(pass_list);
-    }
-
-#endif
-
-    free_fd_mem();
-
     return 0;
 }
+
 
 int db_list_app(void)
 {
@@ -298,9 +250,11 @@ int db_list_app(void)
     printf("[%s][%d]cur num: %d\r\n", __func__, __LINE__, num);
 
     uartp_tmp_passwd_t passwd;
-    // uartp_tmp_passwd_t passwd2;
-    // uartp_tmp_passwd_t passwd3;
-    _init_uartp_tmp_passwd_param(&passwd, 1);
+    uartp_tmp_passwd_t passwd2;
+    uartp_tmp_passwd_t passwd3;
+    ret = _init_uartp_tmp_passwd_param(&passwd, 1);
+    ret = _init_uartp_tmp_passwd_param(&passwd2, 2);
+    ret = _init_uartp_tmp_passwd_param(&passwd3, 3);
 
     uartp_tmp_passwd_list_t list;
 
@@ -341,11 +295,21 @@ int db_list_app(void)
         return ret;
     }
 
-    // rlink_uartp_serialize_tmp_passwd_list()
-
     ret = rlink_uartp_deserialize_tmp_passwd_list(&list, out_list, out_list_len);
     if (ret != 0) {
         printf("[%s][%d]rlink_uartp_deserialize_tmp_passwd_list err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    ret = debug_print_list_info(&list);
+    if (ret != 0) {
+        printf("[%s][%d]debug_print_list_info err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    ret = rlink_uartp_destroy_tmp_passwd_list(&list);
+    if (ret != 0) {
+        printf("[%s][%d]rlink_uartp_destroy_tmp_passwd_list err!\r\n", __func__, __LINE__);
         return ret;
     }
 
@@ -353,9 +317,6 @@ int db_list_app(void)
         free(out_list);
         out_list = NULL;
     }
-
-    // _init_uartp_tmp_passwd_param(&passwd2, 2);
-    // _init_uartp_tmp_passwd_param(&passwd3, 3);
 
     free_fd_mem();
 

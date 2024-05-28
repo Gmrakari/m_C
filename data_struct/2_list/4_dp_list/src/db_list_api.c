@@ -137,10 +137,15 @@ int rlink_uartp_tmp_passwd_list_append(uartp_tmp_passwd_list_t *list, uartp_tmp_
     int ret = 0;
 
     ret = rlink_uartp_tmp_passwd_list_query_id(list, data->idx);
-    printf("ret:%d\r\n", ret);
-    if (ret == -1 || ret == 1) {
+    if (ret == -1) {
         printf("[%s][%d]rlink_uartp_tmp_passwd_list_query_id err!\r\n", __func__, __LINE__);
         ret = -1;
+        return ret;
+    }
+
+    if (ret == 1) {
+        printf("[%s][%d]id:%d has exist!\r\n", __func__, __LINE__, data->idx);
+        ret = 0;
         return ret;
     }
 
@@ -448,7 +453,7 @@ int rlink_read_from_flash_get_list_data(uint8_t **out, uint16_t *out_len)
 
     uint8_t *ptr = private.ptr;
 
-    header_magic = *(ptr + offset);
+    header_magic = *(uint16_t *)(ptr + offset);
     offset += sizeof(uint16_t);
 
     if (header_magic != THING_TMP_PASSWD_MAGIC_HEAD_NUM) {
@@ -488,7 +493,7 @@ static void print_tmp_passwd_info(uartp_tmp_passwd_t *passwd_info)
         return ;
     }
 
-    printf("Password Info:\n");
+    printf("=====Password Info======\r\n");
     printf("idx: %u\n", passwd_info->idx);
     printf("device_id: %u\n", passwd_info->device_id);
     printf("passwd_len: %u\n", passwd_info->passwd_len);
@@ -499,8 +504,7 @@ static void print_tmp_passwd_info(uartp_tmp_passwd_t *passwd_info)
     printf("active_time: %s\n",passwd_info->start_time);
     printf("end_time: %s\n", passwd_info->end_time);
     printf("loops: %s\n",passwd_info->loops);
-
-    printf("\r\n");
+    printf("=========end=========\r\n");
 
     return ;
 }
