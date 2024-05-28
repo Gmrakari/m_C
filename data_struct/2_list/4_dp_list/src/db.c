@@ -373,6 +373,17 @@ int db_list_app(void)
         return ret;
     }
 
+    #if USE_ADD_TEST
+    int add_passwd_min_num = USE_TEST_ADD_NUM_MIN;
+    int add_passwd_max_num = USE_TEST_ADD_NUM_MAX;
+    int add_passwd_num = 100;
+    ret = _db_list_add_test(add_passwd_num);
+    if (ret != 0) {
+        printf("[%s][%d]db list add failed!\r\n", __func__, __LINE__);
+        free_fd_mem();
+        return ret;
+    }
+
     int num = 0;
     ret = rlink_read_from_flash_get_tmp_passwd_num(&num);
     if (ret != 0) {
@@ -383,18 +394,8 @@ int db_list_app(void)
 
     printf("[%s][%d]cur num: %d\r\n", __func__, __LINE__, num);
 
-    #if USE_ADD_TEST
-    int add_passwd_min_num = USE_TEST_ADD_NUM_MIN;
-    int add_passwd_max_num = USE_TEST_ADD_NUM_MAX;
-    int add_passwd_num = add_passwd_min_num;
-    ret = _db_list_add_test(add_passwd_num);
-    if (ret != 0) {
-        printf("[%s][%d]db list add failed!\r\n", __func__, __LINE__);
-        free_fd_mem();
-        return ret;
-    }
-
     free_fd_mem();
+
     return ret;
     #endif
 
