@@ -438,6 +438,11 @@ int rlink_write_uartp_tmp_passwd_list_to_flash(uartp_tmp_passwd_list_t *list)
     memcpy(ptr + offset, out, olen);
     offset += olen;
 
+    if (out) {
+        free(out);
+        out = NULL;
+    }
+
     return ret;
 }
 
