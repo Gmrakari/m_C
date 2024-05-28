@@ -170,13 +170,45 @@ static int _db_list_add_test(int add_count)
         }
     }
 
-    uartp_tmp_passwd_list_t list;
-
-    ret = rlink_uartp_init_tmp_passwd_list(&list);
+    int passwd_num = 0;
+    ret = rlink_read_from_flash_get_tmp_passwd_num(&passwd_num);
     if (ret != 0) {
-        printf("[%s][%d]rlink_uartp_init_tmp_passwd_list err!\r\n", __func__, __LINE__);
-        ret = -1;
+        printf("[%s][%d]rlink read from flash get tmp passwd num err!\r\n", __func__, __LINE__);
         return ret;
+    }
+
+    uartp_tmp_passwd_list_t list;
+    uint8_t *buffer = NULL;
+    uint16_t buflen = 0;
+
+    if (passwd_num == 0) {
+        ret = rlink_uartp_init_tmp_passwd_list(&list);
+        if (ret != 0) {
+            printf("[%s][%d]rlink_uartp_init_tmp_passwd_list err!\r\n", __func__, __LINE__);
+            ret = -1;
+            return ret;
+        }
+    } else {
+        ret = rlink_read_from_flash_get_list_data(&buffer, &buflen);
+        if (ret != 0) {
+            printf("[%s][%d]rlink read from flash get list data err!\r\n", __func__, __LINE__);
+            return ret;
+        }
+
+        ret = rlink_uartp_deserialize_tmp_passwd_list(&list, buffer, buflen);
+        if (ret != 0) {
+            printf("[%s][%d]rlink uartp deserialize tmp passwd list err!\r\n", __func__, __LINE__);
+            if (buffer) {
+                free(buffer);
+                buffer = NULL;
+            }
+            return ret;
+        }
+
+        if (buffer) {
+            free(buffer);
+            buffer = NULL;
+        }
     }
 
     for (int i = 0; i < add_count; i++) {

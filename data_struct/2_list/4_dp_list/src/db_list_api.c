@@ -497,6 +497,9 @@ int rlink_read_from_flash_get_list_data(uint8_t **out, uint16_t *out_len)
     list_node_num = *(ptr + offset);
     offset += sizeof(uint8_t);
 
+    if (list_node_num == 0)
+        return ret;
+
     buffer_len = list_node_num * sizeof(uartp_tmp_passwd_t);
     uint8_t *buffer = malloc(sizeof(uint8_t) * buffer_len);
     if (!buffer) {
