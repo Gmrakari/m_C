@@ -127,6 +127,34 @@ int rlink_uartp_tmp_passwd_list_query_id(uartp_tmp_passwd_list_t *list, uint16_t
     return ret;
 }
 
+int rlink_uartp_tmp_passwd_list_query_id_info(uartp_tmp_passwd_list_t *list, uint16_t idx, uartp_tmp_passwd_t **info)
+{
+    if (!list) {
+        printf("[%s][%d]param invalid!\r\n", __func__, __LINE__);
+        return -1;
+    }
+
+    int ret = 0;
+
+    uartp_tmp_passwd_node_t *cur = list->head;
+    while (cur != NULL) {
+        if (cur->data.idx == idx) {
+            uartp_tmp_passwd_t *out = malloc(sizeof(uartp_tmp_passwd_t));
+            if (!out) {
+                printf("[%s][%d]malloc err!\r\n", __func__, __LINE__);
+                return -1;
+            }
+            memset(out, 0x00, sizeof(uartp_tmp_passwd_t));
+            memcpy(out, &(cur->data), sizeof(uartp_tmp_passwd_t));
+            *info = out;
+            return ret;
+        }
+        cur = cur->next;
+    }
+
+    return ret; 
+}
+
 int rlink_uartp_tmp_passwd_list_append(uartp_tmp_passwd_list_t *list, uartp_tmp_passwd_t *data)
 {
     if (!data) {
@@ -191,8 +219,8 @@ int rlink_uartp_tmp_passwd_list_del(uartp_tmp_passwd_list_t *list, uint16_t inde
 
     ret = rlink_uartp_tmp_passwd_list_query_id(list, index);
     if (ret != 1) {
-        printf("[%s][%d]not found: %d\r\n", __func__, __LINE__, index);
-        ret = -1;
+        printf("[%s][%d]not found idx: %d!\r\n", __func__, __LINE__, index);
+        ret = 0;
         return ret;
     }
 
@@ -212,6 +240,7 @@ int rlink_uartp_tmp_passwd_list_del(uartp_tmp_passwd_list_t *list, uint16_t inde
                     list->tail = prev;
             }
             free(cur);
+            ret = 0;
             return ret;
         }
         prev = cur;

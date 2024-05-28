@@ -31,7 +31,18 @@ int rlink_uartp_destroy_tmp_passwd_list(uartp_tmp_passwd_list_t *list);
 int rlink_uartp_tmp_passwd_list_get_num(uartp_tmp_passwd_list_t *list, uint8_t *num);
 
 // 查询链表中的idx
+// ret:
+// -1 出错
+// 0 list中没有该idx
+// 1 list中找到该idx
 int rlink_uartp_tmp_passwd_list_query_id(uartp_tmp_passwd_list_t *list, uint16_t idx);
+
+// 查询链表中满足条件的idx, 并且返回该idx的所有信息
+// ret:
+// -1 出错
+// 0 list中没有该idx
+// 1 list中找到该idx, 结果返回到info中
+int rlink_uartp_tmp_passwd_list_query_id_info(uartp_tmp_passwd_list_t *list, uint16_t idx, uartp_tmp_passwd_t **info);
 
 // 往链表中增加data
 int rlink_uartp_tmp_passwd_list_append(uartp_tmp_passwd_list_t *list, uartp_tmp_passwd_t *data);

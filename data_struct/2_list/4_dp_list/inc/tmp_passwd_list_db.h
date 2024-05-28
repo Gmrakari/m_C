@@ -35,7 +35,7 @@ int get_fd_mem_ptr(uint8_t **mem_ptr);
 
 int free_fd_mem(void);
 
-int tmp_passwd_db_list_app(void);
+int init_tmp_passwd_db_memory(void);
 
 int db_list_app(void);
 

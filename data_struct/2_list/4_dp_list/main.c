@@ -10,13 +10,11 @@ int main()
 
     printf("[%s][%d]start to run app!\r\n", __func__, __LINE__);
 
-    #if 1
     ret = db_list_app();
     if (ret != 0) {
         printf("[%s][%d]\r\n", __func__, __LINE__);
         return ret;
     }
-    #endif
 
     printf("[%s][%d]run finish!\r\n", __func__, __LINE__);
 
