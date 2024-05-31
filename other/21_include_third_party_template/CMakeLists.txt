@@ -1,21 +1,25 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.0)
 
-# 项目信息
-project(MyProject C)
+project(app)
 
-# 设置 C 标准
 set(CMAKE_C_STANDARD 99)
 
-# 添加子目录
-add_subdirectory(third_party/cjson)
-# add_subdirectory(src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc 
+                   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cjson/include)
 
-# 包含目录
-include_directories(${PROJECT_SOURCE_DIR}/inc)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/cjson/include)
+add_subdirectory(third_party)
 
-# 可执行文件
-add_executable(my_app main.c)
+file(GLOB_RECURSE SRC_LIST "src/*.c")
 
-# 链接库
-target_link_libraries(my_app cjson_lib)
+add_executable(${PROJECT_NAME} main.c ${SRC_LIST})
+
+# link .a || .so
+target_link_libraries(${PROJECT_NAME} cjson_static)
+# target_link_libraries(my_app cjson_shared)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
+include(CTest)
+
+add_test(NAME valgrind_test
+         COMMAND valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 $<TARGET_FILE:${PROJECT_NAME}>)
