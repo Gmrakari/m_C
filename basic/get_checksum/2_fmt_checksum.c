@@ -236,6 +236,12 @@ static int _get_null_data_checksum_test()
     unsigned char del_cmd = 0x0D;
     unsigned char query_cmd = 0x0E;
 
+    unsigned char get_pid = 0xb0;
+    unsigned char get_uuid = 0xb1;
+    unsigned char get_secret = 0xb2;
+    unsigned char get_mac = 0xb3;
+    unsigned char get_all = 0xb7;
+
     int ret = 0;
     // printf("add cmd test:\r\n");
     // ret = _get_null_data_checksum(add_cmd);
@@ -256,6 +262,36 @@ static int _get_null_data_checksum_test()
     if (ret != 0) {
         printf("[%s][%d]gen query checksum err!\r\n", __func__, __LINE__);
         return -1;
+    }
+
+    return 0;
+}
+
+static int _get_triple_info_checksum()
+{
+    typedef struct {
+        unsigned char *str;
+        unsigned char value;
+    } __attribute__((packed)) dev_info_t;
+
+    dev_info_t get_info[] = {
+        {"pid", 0xb0},
+        {"uuid", 0xb1},
+        {"secret", 0xb2},
+        {"mac", 0xb7},
+    };
+
+    int ret = 0;
+
+    int get_info_len = sizeof(get_info) / sizeof(get_info[0]);
+
+    for (int i = 0; i < get_info_len; i++) {
+        printf("%s\r\n", get_info[i].str);
+        ret = _get_null_data_checksum(get_info[i].value);
+        if (ret != 0) {
+            printf("[%s][%d]gen %s checksum err!\r\n", __func__, __LINE__, get_info[i].str);
+            return -1;
+        }
     }
 
     return 0;
@@ -393,9 +429,24 @@ static int _del_with_idx()
     return ret;
 }
 
+static int _set_triple_info_test()
+{
+    unsigned char cmd = 0xB8;
+    const char *str = "{\"pid\":\"FNj2Raewe9TrOs\",\"uuid\":\"rn01226bba3ebb82\",\"secret\":\"34a040281b6340d3a30f7f9efa4385ce\",\"mac\":\"444AD700A579\"}";
+
+    int ret = 0;
+    ret = _gen_checksum_app(cmd, str);
+    if (ret != 0) {
+        printf("_gen_checksum_app err!\r\n");
+        return -1;
+    }
+
+    return ret;
+}
+
 int main()
 {
-    _get_null_data_checksum_test();
+    // _get_null_data_checksum_test();
 
     // _add_test();
 
@@ -406,6 +457,10 @@ int main()
     // _del_test();
 
     // _modify_str_test();
+
+    // _set_triple_info_test();
+
+    _get_triple_info_checksum();
 
     return 0;
 }
