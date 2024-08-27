@@ -1,3 +1,4 @@
+
 一、上电检查主数据有效性
 1. 检查主数据src_data_sector是否有效
 	 a. 读取主数据区，检查crc校验码  （从flash数据加载到内存， 检查主分区和备份分区)
@@ -9,7 +10,7 @@
 		1).读取crc校验
 		2).如果crc有效，从备份区恢复数据到src_data_sector
 		3).备份区1有效，从有效备份区恢复数据
-		4).备份区都无效，清空数据,重启
+		4).备份区都无效，清空数据（清空备份分区数据和主扇区数据),重启
 	b.恢复数据
 		1). 将有效的备份区复制到主数据中
 		2). 恢复后重新进行crc校验，确保恢复的数据是有效的
@@ -33,3 +34,30 @@
 	c. 更新备份区
 		1). 写入完成之后，将src数据备份到bak1中
 		2). 备份区更新成功
+
+```C
+// crc32
+int cal_crc32(const uint8_t *data, int length, uint32_t *o_crc)
+{
+    if (!data || !o_crc) {
+        printf("[%s][%d]invalid in param!\r\n", __func__, __LINE__);
+        return -1;
+    }
+
+    uint32_t crc = 0xFFFFFFFF;
+    for (int i = 0; i < length; i++) {
+        crc ^= data[i];
+        for (int j = 0; j < 8; j++) {
+            if (crc & 0x01) {
+                crc = (crc >> 1) ^ 0xEDB88320;
+            } else {
+                crc >>= 1;
+            }
+        }
+    }
+
+    *o_crc = crc ^ 0xFFFFFFFF;
+
+    return 0;
+}
+```

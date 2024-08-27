@@ -71,11 +71,23 @@ typedef struct {
     int8_t device_mac[6];
     //
     sTripleInfo tripleInfo;
+
+    uint32_t crc_32;
 } DevInfo_t;
 
 int get_dev_info_size(int *olen);
 
-
 int init_dev_info(DevInfo_t *dev_info);
+
+// 计算crc校验
+int cal_crc32(const uint8_t *data, int length, uint32_t *o_crc);
+
+// 获取dev_info结构体的crc值
+int get_dev_info_crc(const DevInfo_t *dev_info, uint32_t *crc);
+
+// 设置dev_info结构体crc的值
+int set_dev_info_crc(DevInfo_t *dev_info, uint32_t crc);
+
+int cal_dev_info_crc32(const DevInfo_t *dev_info, uint32_t *crc);
 
 #endif
