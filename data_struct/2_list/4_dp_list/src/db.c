@@ -48,7 +48,9 @@ int init_tmp_passwd_db_memory(void)
         return -1;
     }
 
-    memset(ptr, 0x00, DEFAULT_MEM_SIZE);
+    // memset(ptr, 0x00, DEFAULT_MEM_SIZE);
+    memset(ptr, 0xff, DEFAULT_MEM_SIZE);
+
     free_fd_mem();
 
     return 0;
@@ -163,8 +165,11 @@ static int _db_list_add_test(int add_count)
         ret = _init_uartp_tmp_passwd_param(&tmp_passwd_data_arr[i], i + 1);
         if (ret != 0) {
             printf("[%s][%d]_init_uartp_tmp_passwd_param err!\r\n", __func__, __LINE__);
+
+            #if 0
             free(tmp_passwd_data_arr);
             tmp_passwd_data_arr = NULL;
+            #endif
             ret = -1;
             return ret;
         }
@@ -176,6 +181,8 @@ static int _db_list_add_test(int add_count)
         printf("[%s][%d]rlink read from flash get tmp passwd num err!\r\n", __func__, __LINE__);
         return ret;
     }
+
+    printf("passwd_num:%d\r\n", passwd_num);
 
     uartp_tmp_passwd_list_t list;
     uint8_t *buffer = NULL;
@@ -221,7 +228,7 @@ static int _db_list_add_test(int add_count)
         }
     }
 
-    if(tmp_passwd_data_arr) {
+    if (tmp_passwd_data_arr) {
         free(tmp_passwd_data_arr);
         tmp_passwd_data_arr = NULL;
     }
@@ -298,6 +305,21 @@ static int _db_list_query_test(int type)
 {
     int ret = 0;
 
+    int passwd_num = 0;
+    ret = rlink_read_from_flash_get_tmp_passwd_num(&passwd_num);
+    if (ret != 0) {
+        printf("[%s][%d]rlink read from flash get tmp passwd num err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    printf("[%s][%d]query passwd_num: %d\r\n", __func__, __LINE__, passwd_num);
+
+    if (passwd_num == 0 || passwd_num == 0xFF) {
+        printf("[%s][%d]has not tmp passwd! query finish\r\n", __func__, __LINE__);
+        ret = 0;
+        return ret;
+    }
+
     uint8_t *buffer = NULL;
     uint16_t buflen = 0;
     ret = rlink_read_from_flash_get_list_data(&buffer, &buflen);
@@ -323,14 +345,29 @@ static int _db_list_query_test(int type)
         buffer = NULL;
     }
 
-    uint16_t idx = 802;
-    ret = rlink_uartp_tmp_passwd_list_query_id(&list, idx);
-    if (ret != 1) {
-        printf("[%s][%d]not found idx: %d!\r\n", __func__, __LINE__, idx);
-        ret = 0;
+    // uint16_t idx = 802;
+    // ret = rlink_uartp_tmp_passwd_list_query_id(&list, idx);
+    // if (ret != 1) {
+    //     printf("[%s][%d]not found idx: %d!\r\n", __func__, __LINE__, idx);
+    //     ret = 0;
+    //     rlink_uartp_destroy_tmp_passwd_list(&list);
+    //     return ret;
+    // }
+
+    ret = debug_print_list_info(&list);
+    if (ret != 0) {
+        printf("[%s][%d] debuf print list info err!\r\n", __func__, __LINE__);
         rlink_uartp_destroy_tmp_passwd_list(&list);
         return ret;
     }
+
+    ret = rlink_uartp_destroy_tmp_passwd_list(&list);
+    if (ret != 0) {
+        printf("[%s][%d]rlink uartp destroy tmp passwd list err!\r\n", __func__, __LINE__);
+        return ret;
+    }
+
+    #if 0
 
     uartp_tmp_passwd_t *info = NULL;
     ret = rlink_uartp_tmp_passwd_list_query_id_info(&list, idx, &info);
@@ -349,6 +386,7 @@ static int _db_list_query_test(int type)
         printf("[%s][%d]rlink uartp destroy tmp passwd list err!\r\n", __func__, __LINE__);
         return ret;
     }
+    #endif
 
     return 0;
 }
@@ -376,7 +414,7 @@ int db_list_app(void)
     #if USE_ADD_TEST
     int add_passwd_min_num = USE_TEST_ADD_NUM_MIN;
     int add_passwd_max_num = USE_TEST_ADD_NUM_MAX;
-    int add_passwd_num = 100;
+    int add_passwd_num = 2;
     ret = _db_list_add_test(add_passwd_num);
     if (ret != 0) {
         printf("[%s][%d]db list add failed!\r\n", __func__, __LINE__);

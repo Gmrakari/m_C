@@ -4,12 +4,12 @@
 // 4k
 #define DEFAULT_MEM_SIZE (4 * 1024)
 
-#define USE_INIT_MEMORY_SECTOR       (1)
+#define USE_INIT_MEMORY_SECTOR       (0)
 
-#define USE_ADD_TEST                 (0)
+#define USE_ADD_TEST                 (1)
 
 #if USE_ADD_TEST
-    #define USE_TEST_ADD_NUM_MIN     (1)
+    #define USE_TEST_ADD_NUM_MIN     (0)
     #define USE_TEST_ADD_NUM_MAX     (97)
 #endif 
 
