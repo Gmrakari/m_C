@@ -23,3 +23,5 @@ bin
 
 #ignore lib directory
 lib
+
+.idea/
