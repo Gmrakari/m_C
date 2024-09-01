@@ -61,3 +61,6 @@ int cal_crc32(const uint8_t *data, int length, uint32_t *o_crc)
     return 0;
 }
 ```
+
+linux下查看文件hex信息
+xxd -l bytes_num filename
