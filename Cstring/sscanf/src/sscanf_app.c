@@ -16,5 +16,15 @@ int sscanf_app(void) {
     } else {
         printf("fail to parse\r\n");
     }
+
+    char tmp[] = "{\"ts\":1724925986}";
+
+    long unsigned int val = 0;
+    if (sscanf(tmp, "{\"ts\":%ld}", &val) == 1) {
+        printf("Extracted ts value: %ld\n", val);
+    } else {
+        printf("Failed to extract ts value\n");
+    }
+
     return 0;
 }
