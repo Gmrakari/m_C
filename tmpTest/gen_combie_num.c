@@ -1,11 +1,16 @@
 #include <stdio.h>
 
 int main() {
+
+    // 千位3个一组
+    // 百位每个不同 6位一组
+    // 十位 一个
+    // 个位 有不定长elem_len
+
     // 千位数组
-    // int arr_thouds[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int arr_thouds[] = {0, 0, 0, 1, 1, 1, 5, 5, 5, 6, 6, 6, 4, 4, 4, 7, 7, 7, 0, 0, 0, 1, 1, 1, 5, 5, 5, 6, 6, 6, 4, 4, 4, 7, 7, 7};
 
-    int arr_thouds[] = {0, 1, 5, 6, 4, 7};
-
+    // 百位数组
     int arr_hunred0[] = {0, 1, 5, 6, 7, 9};
     int arr_hunred1[] = {0, 1, 3, 4, 5, 9};
     int arr_hunred2[] = {0, 1, 2, 4, 5, 6};
@@ -59,12 +64,27 @@ int main() {
 
     // 各个位数数组
     int arr_num0[] = {2, 3, 4, 6, 7, 8};
-    int arr_num1[] = {3, 4, 5, 7, 9, 8};
+    int arr_num1[] = {3, 4, 5, 7, 8, 9};
     int arr_num2[] = {1, 2, 3, 7, 8, 9};
     int arr_num3[] = {0, 2, 3, 4, 8, 9};
     int arr_num4[] = {0, 1, 2, 6, 7, 8};
     int arr_num5[] = {0, 1, 3, 4, 5, 9};
-    int* arr_nums[] = {arr_num0, arr_num1, arr_num2, arr_num3, arr_num4, arr_num5};
+
+    int arr_num6[] = {4, 7};
+    int arr_num7[] = {3, 4, 5, 7, 8, 9};
+    int arr_num8[] = {1, 7};
+    int arr_num9[] = {4};
+    int arr_num10[] = {8};
+    int arr_num11[] = {3, 5};
+
+    int* arr_nums[] = {arr_num0, arr_num1, arr_num2, arr_num3, arr_num4, arr_num5, arr_num6, arr_num7, arr_num8, arr_num9, arr_num10, arr_num11};
+
+    int arr_nums_len[] = {sizeof(arr_num0) / sizeof(arr_num0[0]), sizeof(arr_num1) / sizeof(arr_num1[0]),
+                           sizeof(arr_num2) / sizeof(arr_num2[0]), sizeof(arr_num3) / sizeof(arr_num3[0]),
+                           sizeof(arr_num4) / sizeof(arr_num4[0]), sizeof(arr_num5) / sizeof(arr_num5[0]),
+                           sizeof(arr_num6) / sizeof(arr_num6[0]), sizeof(arr_num7) / sizeof(arr_num7[0]),
+                           sizeof(arr_num8) / sizeof(arr_num8[0]), sizeof(arr_num9) / sizeof(arr_num9[0]),
+                           sizeof(arr_num10) / sizeof(arr_num10[0]), sizeof(arr_num11) / sizeof(arr_num11[0])};
 
     // 组合输出的计数器
     int combination_count = 0;
@@ -73,65 +93,51 @@ int main() {
     int *num = NULL;
     int *ten = NULL;
 
-    int thouds_size = sizeof(arr_thouds) / sizeof(arr_thouds[0]);
-    int hunred_size = sizeof(arr_hunred0) / sizeof(arr_hunred0[0]);
-    int ten_size = sizeof(arr_ten0) / sizeof(arr_ten0[0]);
-    int num_size = sizeof(arr_num0) / sizeof(arr_num0[0]);
+    int thouds_elem_size = sizeof(arr_thouds) / sizeof(arr_thouds[0]);
+    int hunred_elem_size = sizeof(arr_hunred0) / sizeof(arr_hunred0[0]);
+    int ten_elem_size = sizeof(arr_ten0) / sizeof(arr_ten0[0]);
+    int num_elem_size = sizeof(arr_num0) / sizeof(arr_num0[0]);
 
     int ten_idx = 0;
-    for (int i = 0; i < thouds_size; i++) {
-        hundred = arr_hunred[i];
-        for (int j = 0; j < hunred_size; j++) {
-            num = arr_nums[i];
-            ten = arr_tens[i];
-            for (int k = 0; k < ten_size; k++) {
-                for (int l = 0; l < num_size; l++) {
-                    printf("%d%d%d%d,", arr_thouds[i], hundred[j], ten[k], num[l]);
-                    combination_count++;
-                    if (l == num_size - 1) {
-                        printf("\r\n");
-                        // ten_idx++;
-                    }
-                }
-            }
-        }
-    }
+    int num_idx = 0;
 
     // 打开文件以写入
-    // FILE *file = fopen("b.txt", "w");
-    // if (file == NULL) {
-    //     perror("Failed to open file");
-    //     return 1; // 如果文件打开失败，返回错误
-    // }
+    FILE *file = fopen("b.txt", "w");
+    if (file == NULL) {
+        perror("Failed to open file");
+        return 1; // 如果文件打开失败，返回错误
+    }
 
-    // 遍历千位、百位、十位和个位数组，生成所有组合
-    // for (int i = 0; i < thouds_size; i++) { // 千位
-    //     for (int j = 0; j < hunred_size; j++) { // 百位
-    //         // 根据 hunred 选择十位数组
-    //         ten = arr_tens[j];
-    //         // 根据 thouds 选择个位数组
-    //         num = arr_nums[i];
-
-    //         for (int k = 0; k < ten_size; k++) { // 遍历选择的十位数组
-    //             for (int l = 0; l < num_size; l++) { // 遍历选择的个位数组
-    //                 // 格式化输出
-    //                 if (j == hunred_size - 1 && k == ten_size - 1 && l == num_size - 1) {
-    //                     fprintf(file, "%d%d%d%d", arr_thouds[i], arr_hunred[j], ten[k], num[l]);
-    //                 } else {
-    //                     fprintf(file, "%d%d%d%d,", arr_thouds[i], arr_hunred[j], ten[k], num[l]);
-    //                 }
-    //                 combination_count++;
-    //             }
-    //         }
-    //     }
-
-    //     // 在每一个千位遍历结束时换行
-    //     if (i != thouds_size - 1)
-    //         fprintf(file, "\n");
-    // }
+    for (int i = 0; i < thouds_elem_size; i++) {
+        if (ten_idx == thouds_elem_size / 2)
+            ten_idx = 0;
+        hundred = arr_hunred[ten_idx];
+        if (i % 3 == 0) {
+            num = arr_nums[num_idx];
+            num_elem_size = arr_nums_len[num_idx];
+            num_idx++;
+        }
+        for (int j = 0; j < ten_elem_size; j++) {
+            ten = arr_tens[ten_idx];
+            for (int k = 0; k < hunred_elem_size; k++) {
+                for (int l = 0; l < num_elem_size; l++) {
+                    if (l == num_elem_size - 1 && k == hunred_elem_size - 1) {
+                        fprintf(file, "%d%d%d%d", arr_thouds[i], hundred[k], ten[j], num[l]);
+                    } else {
+                        fprintf(file, "%d%d%d%d,", arr_thouds[i], hundred[k], ten[j], num[l]);
+                    }
+                    combination_count++;
+                }
+            }
+            ten_idx++;
+        }
+        // 在每一个千位遍历结束时换行
+        if (i != thouds_elem_size - 1)
+            fprintf(file, "\n");
+    }
 
     // 关闭文件
-    // fclose(file);
+    fclose(file);
 
     printf("Total combinations: %d\n", combination_count); // 输出组合总数
 
