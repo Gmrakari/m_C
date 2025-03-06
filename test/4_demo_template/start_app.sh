@@ -1,36 +1,48 @@
 #!/bin/bash
 
-# 获取当前脚本的目录
-# SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SCRIPT_PATH=$(readlink -f "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
-
 APP_NAME="app"
 
-# 检测是否存在目录 build
-BUILD_DIR="$SCRIPT_DIR/build"
-if [ ! -d "$BUILD_DIR" ]; then
-    mkdir "$BUILD_DIR"
-fi
+cmake_build() {
+    BUILD_DIR="$SCRIPT_DIR/build"
+    if [ ! -d "$BUILD_DIR" ]; then
+        mkdir "$BUILD_DIR"
+    fi
+    cd "$BUILD_DIR" || exit
+    cmake -DCMAKE_BUILD_TYPE=Debug .. >/dev/null 2>&1
+}
 
-# 进入 build 目录
-cd "$BUILD_DIR" || exit
+make_build() {
+    make --silent -j10
+    return $?
+}
 
-# 使用 cmake 和 make 编译项目
-cmake .. >/dev/null 2>&1
-make --silent
-
-echo ""
-
-# 检查是否编译成功
-if [ $? -eq 0 ]; then
-    # 进入 ../bin/ 目录并执行 app
-
+run_app() {
+    cur_time=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "build app finish: $cur_time, use: $elapsed_time ms"
     BIN_DIR="$SCRIPT_DIR/bin"
     cd "$BIN_DIR" || exit
     ./${APP_NAME}
-else
-    echo "Build failed. Exiting."
-    exit 1
-fi
+}
 
+main() {
+    start_time=$(date +%s%N)
+
+    cmake_build
+
+    make_build
+    make_status=$?
+
+    end_time=$(date +%s%N)
+    elapsed_time=$(( ($end_time - $start_time) / 1000000 ))
+
+    if [ $make_status -eq 0 ]; then
+        run_app
+    else
+        echo "Build failed. Exiting."
+        exit 1
+    fi
+}
+
+main
