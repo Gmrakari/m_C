@@ -19,8 +19,10 @@ static int _get_file_info(void)
 
     struct stat sb;
 
-    if ((fstat(fd, &sb)) == -1)
-      return -1;
+    if ((fstat(fd, &sb)) == -1) {
+        close(fd);
+        return -1;
+    }
 
     printf("[%s][%d]sb.st_size: %ld\r\n", __func__, __LINE__, sb.st_size);
 
