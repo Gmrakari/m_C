@@ -23,13 +23,14 @@ static int _fseek_ftell_usage(const char *filepath, int *olen)
 
     FILE *fp = NULL;
 
-    if (NULL == (fp = fopen(path, "r+"))) {
-        DEBUG("open file : %s err!", path);
+    if (NULL == (fp = fopen(path, "r"))) {
+        DEBUG("fopen %s failed\r\n", path);
         return -1;
     }
 
     if (0 != (ret = fseek(fp, 0, SEEK_END))) {
-        DEBUG("fseek err!");
+        DEBUG("fseek failed\r\n");
+        fclose(fp);
         return -1;
     }
 
@@ -37,14 +38,14 @@ static int _fseek_ftell_usage(const char *filepath, int *olen)
     end = ftell(fp);
 
     if (0 != (ret = fseek(fp, 0, SEEK_SET))) {
-        DEBUG("fseek err!");
+        DEBUG("fseek failed\r\n");
+        fclose(fp);
         return -1;
     }
     start = ftell(fp);
+    fclose(fp);
 
     file_size = end - start;
-
-    DEBUG("file_size:%d", (int)file_size);
 
     *olen = file_size;
 
