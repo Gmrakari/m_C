@@ -26,4 +26,6 @@ lib
 
 .idea/
 
-.res/
+.res/*
+
+main.c
