@@ -37,28 +37,33 @@ typedef struct {
 } CMS_I_FaultDecoded_t;
 
 typedef struct {
-    // byte[0]
+    // 1. 总故障数（0~7 bit，8位）- 独占字节0
     uint8 CMS_I_TotalFaultNum;
 
-	// byte[1]
-    uint8 CMS_I_FrameIndex : 5;
-    uint8 CMS_I_SupplierNum : 3;
+    // 2. 帧索引 + 供应商编号（共享字节1）
+    // 字节1：8~12 bit（5位）= 帧索引；13~15 bit（3位）= 供应商编号
+    uint8 CMS_I_FrameIndex : 5;    // 8~12 bit（字节1低5位）
+    uint8 CMS_I_SupplierNum : 3;   // 13~15 bit（字节1高3位）
 
-    // byte[2~3]:故障编号1（12位，bit16~27）
-    uint8 FaultNum1Low;
-    uint8 FaultNum1High : 4;
+    // 3. 故障ID1（16~23 bit + 28~31 bit → 共12位）
+    // 跨字节2（低8位） + 字节3低4位（高4位）
+    uint8 FaultNum1_low8;          // 16~23 bit（字节2，低8位）
+    uint8 FaultNum1_high4 : 4;     // 28~31 bit（字节3低4位，高4位）
 
-    // byte[3~4]:故障编号2（12位，bit28~39）
-    uint8 FaultNum2Low : 4;
-    uint8 FaultNum2High;
+    // 4. 故障ID2（24~27 bit + 32~39 bit → 共12位）
+    // 跨字节3高4位（高4位） + 字节4（低8位）
+    uint8 FaultNum2_high4 : 4;     // 24~27 bit（字节3高4位，高4位）
+    uint8 FaultNum2_low8;          // 32~39 bit（字节4，低8位）
 
-    // byte[5~6]:故障编号3（12位，bit40~51）
-    uint8 FaultNum3Low;
-    uint8 FaultNum3High : 4;
+    // 5. 故障ID3（40~47 bit + 52~55 bit → 共12位）
+    // 跨字节5（低8位） + 字节6低4位（高4位）
+    uint8 FaultNum3_low8;          // 40~47 bit（字节5，低8位）
+    uint8 FaultNum3_high4 : 4;     // 52~55 bit（字节6低4位，高4位）
 
-    // byte[6~7]:故障编号4（12位，bit52~63）
-    uint8 FaultNum4Low : 4;
-    uint8 FaultNum4High;
+    // 6. 故障ID4（48~51 bit + 56~63 bit → 共12位）
+    // 跨字节6高4位（高4位） + 字节7（低8位）
+    uint8 FaultNum4_high4 : 4;     // 48~51 bit（字节6高4位，高4位）
+    uint8 FaultNum4_low8;          // 56~63 bit（字节7，低8位）
 } CMS_I_Fault_t;
 
 static uint8 cms_i_fault_data[8] = {0};
@@ -74,18 +79,42 @@ static uint32_t total_cycles = 0;
 // 解码函数
 void cms_i_fault_decode(const uint8 *data, CMS_I_FaultDecoded_t *decoded)
 {
-    uint64 frame = 0;
-    for (uint8 i = 0; i < 8; i++) {
-        frame |= ((uint64)data[i]) << (i * 8);
+    if (!data || !decoded) return;
+    memset(decoded, 0, sizeof(CMS_I_FaultDecoded_t));
+
+    // 1. 按 Motorola 字节序组装 64 位数据（字节0对应bit0~7，字节1对应bit8~15...）
+    uint64_t frame = 0;
+    for (uint8_t i = 0; i < 8; i++) {
+        frame |= (uint64_t)data[i] << (i * 8);  // 关键修正：字节i对应bit(i*8)~bit(i*8+7)
     }
-    
-    decoded->TotalFaultNum = (frame >> 0) & 0xFF;
-    decoded->FrameIndex = (frame >> 8) & 0x1F;
-    decoded->SupplierNum = (frame >> 13) & 0x07;
-    
-    for (uint8 i = 0; i < 4; i++) {
-        decoded->FaultNum[i] = (frame >> (16 + i * 12)) & 0xFFF;
-    }
+
+    // 2. 解析基础信号（严格匹配结构体位域）
+    decoded->TotalFaultNum = (frame >> 0) & 0xFF;          // 字节0（bit0~7）
+    decoded->FrameIndex = (frame >> 8) & 0x1F;             // 字节1低5位（bit8~12）
+    decoded->SupplierNum = (frame >> 13) & 0x07;           // 字节1高3位（bit13~15）
+
+    // 3. 解析故障ID（12位，按结构体拆分规则提取）
+    // 故障ID1：bit16~23（低8位） + bit28~31（高4位）
+    uint8_t fault1_low8 = (frame >> 16) & 0xFF;            // 字节2（bit16~23）
+    uint8_t fault1_high4 = (frame >> 28) & 0x0F;           // 字节3低4位（bit28~31）
+    decoded->FaultNum[0] = (fault1_high4 << 8) | fault1_low8;
+
+    // 故障ID2：bit24~27（高4位） + bit32~39（低8位）
+    uint8_t fault2_high4 = (frame >> 24) & 0x0F;           // 字节3高4位（bit24~27）
+    uint8_t fault2_low8 = (frame >> 32) & 0xFF;            // 字节4（bit32~39）
+    decoded->FaultNum[1] = (fault2_high4 << 8) | fault2_low8;
+
+    // 故障ID3：bit40~47（低8位） + bit52~55（高4位）
+    uint8_t fault3_low8 = (frame >> 40) & 0xFF;            // 字节5（bit40~47）
+    uint8_t fault3_high4 = (frame >> 52) & 0x0F;           // 字节6低4位（bit52~55）
+    decoded->FaultNum[2] = (fault3_high4 << 8) | fault3_low8;
+
+    // 故障ID4：bit48~51（高4位） + bit56~63（低8位）
+    uint8_t fault4_high4 = (frame >> 48) & 0x0F;           // 字节6高4位（bit48~51）
+    uint8_t fault4_low8 = (frame >> 56) & 0xFF;            // 字节7（bit56~63）
+    decoded->FaultNum[3] = (fault4_high4 << 8) | fault4_low8;
+
+    return ;
 }
 
 static int Dem_ReadEventStatus(uint16 eventId)
@@ -125,10 +154,8 @@ void app_can_send_cms_i_fault_optimized(void)
     if (Dem_ReadEventStatus(DEM_EVENT_ID_EventParameter_Lost_Communication_With_VIU2))
         faultIds[faultCount++] = 0x007;
 
-    // 变化检测 - 简化版本，不排序
     bool changed = (faultCount != lastTotalFaultNum);
     if (!changed && faultCount > 0) {
-        // 直接比较两个数组，如果顺序不同也会检测为变化
         for (uint8 i = 0; i < faultCount; i++) {
             if (faultIds[i] != lastFaultList[i]) {
                 changed = true;
@@ -138,93 +165,79 @@ void app_can_send_cms_i_fault_optimized(void)
     }
 
     if (changed) {
-        // 更新历史数据
         for (uint8 i = 0; i < faultCount; i++) {
             lastFaultList[i] = faultIds[i];
         }
-
         lastTotalFaultNum = faultCount;
-        // 根据文档：无故障时frameIndex=0，有故障时从1开始
         frameIndex = (faultCount > 0) ? 1 : 0;
     }
 
-    // 数据打包 - 无论有无故障都要发送
-    uint8 supplierNum = 0x00;
-    uint64 frame = 0;
+    memset(&cms_i_fault, 0, sizeof(CMS_I_Fault_t));
+    cms_i_fault.CMS_I_TotalFaultNum = faultCount & 0xFF;
+    cms_i_fault.CMS_I_FrameIndex = frameIndex & 0x1F;
+    cms_i_fault.CMS_I_SupplierNum = 0x00 & 0x07;
 
-    frame |= ((uint64)faultCount & 0xFF) << 0;           // TotalFaultNum
-    frame |= ((uint64)frameIndex & 0x1F) << 8;           // FrameIndex (无故障时为0)
-    frame |= ((uint64)supplierNum & 0x07) << 13;         // SupplierNum
-
-    // 计算当前帧应该包含的故障
     uint8 startIdx = 0;
     uint8 faultsInThisFrame = 0;
-
     if (faultCount > 0 && frameIndex > 0) {
-        // 有故障且不是第0帧
         startIdx = (frameIndex - 1) * 4;
         faultsInThisFrame = (faultCount - startIdx < 4) ? (faultCount - startIdx) : 4;
     }
-    // 无故障时 faultsInThisFrame = 0，所有故障位置填充0
 
-    // 填充4个故障位置
     for (uint8 i = 0; i < 4; i++) {
-        uint16 faultVal = 0x000;  // 默认填充0
         if (i < faultsInThisFrame) {
-            faultVal = faultIds[startIdx + i] & 0xFFF;
+            uint16 faultVal = faultIds[startIdx + i] & 0xFFF;
+            switch (i) {
+                case 0:
+                    cms_i_fault.FaultNum1_low8 = faultVal & 0xFF;
+                    cms_i_fault.FaultNum1_high4 = (faultVal >> 8) & 0x0F;
+                    break;
+                case 1:
+                    cms_i_fault.FaultNum2_high4 = (faultVal >> 8) & 0x0F;
+                    cms_i_fault.FaultNum2_low8 = faultVal & 0xFF;
+                    break;
+                case 2:
+                    cms_i_fault.FaultNum3_low8 = faultVal & 0xFF;
+                    cms_i_fault.FaultNum3_high4 = (faultVal >> 8) & 0x0F;
+                    break;
+                case 3:
+                    cms_i_fault.FaultNum4_high4 = (faultVal >> 8) & 0x0F;
+                    cms_i_fault.FaultNum4_low8 = faultVal & 0xFF;
+                    break;
+            }
         }
-        frame |= ((uint64)faultVal) << (16 + i * 12);
     }
 
-    // 更新帧索引（仅当有故障时）
+    // 更新帧索引
     if (faultCount > 0) {
         uint8 totalFrames = (faultCount + 3) / 4;
-        if (totalFrames > 1) {
-            frameIndex = (frameIndex % totalFrames) + 1;  // 1, 2, 3... 循环
-        } else {
-            frameIndex = 1;  // 只有一帧时固定为1
-        }
+        frameIndex = (totalFrames > 1) ? (frameIndex % totalFrames) + 1 : 1;
     }
-    // 无故障时 frameIndex 保持为0
 
-    // printf("[%s][%d]frameIndex: %d\r\n", __func__, __LINE__, frameIndex);
-
-    // 填充发送数据
-    // for (uint8 i = 0; i < 8; i++) {
-    //     cms_i_fault_data[i] = (frame >> (i * 8)) & 0xFF;
-    // }
-
-
-    memcpy(cms_i_fault_data, (uint8*)&frame, sizeof(cms_i_fault_data));
+    // 拷贝结构体数据到发送缓冲区
+    memcpy(cms_i_fault_data, &cms_i_fault, sizeof(cms_i_fault_data));
 
     total_cycles++;
 }
 
-// 打印CAN帧信息
 void print_can_frame_info(void)
 {
-    // printf("")
     CMS_I_FaultDecoded_t decoded;
     cms_i_fault_decode(cms_i_fault_data, &decoded);
     
-    printf("Cycle %4u: TotalFaults=%u, FrameIndex=%u, Supplier=%u, Faults: ",
+    // 核心帧信息（对齐格式，便于查看）
+    printf("Cycle: %4u\r\n TotalFaults: %u FrameIndex: %u Supplier: 0x%01X  ",
            cycle_count, decoded.TotalFaultNum, decoded.FrameIndex, decoded.SupplierNum);
-
+    printf("Faults: ");
     for (int i = 0; i < 4; i++) {
-        if (decoded.FaultNum[i] != 0) {
-            printf("0x%03X ", decoded.FaultNum[i]);
-        } else {
-            printf("0x000 ");  // 显示为0的故障号
-        }
+        printf("0x%03X ", decoded.FaultNum[i]);
     }
-    printf("\n");
 
-    // 打印原始数据
-    printf("Raw Data: ");
-    for (int i = 0; i < 8; i++) {
-        printf("%02X ", cms_i_fault_data[i]);
-    }
-    printf("\r\n\r\n");
+    printf("\r\n");
+    printf("Raw (Data Motorola): 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\r\n",
+           cms_i_fault_data[0], cms_i_fault_data[1], cms_i_fault_data[2], cms_i_fault_data[3],
+           cms_i_fault_data[4], cms_i_fault_data[5], cms_i_fault_data[6], cms_i_fault_data[7]);
+    printf("\n\n");
 }
 
 // 测试用例
@@ -445,19 +458,37 @@ void run_test_cases(void)
     printf("False judgment rate: %.2f%%\n", (float)false_change_count / total_cycles * 100);
 }
 
-void can_dem_app(void)
+static int tmp_test_parse_data_1()
 {
-
     int rc = 0;
-
-    uint8_t data[] = {0x01, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00};
     // uint8_t data[] = {0x02, 0x01, 0x01, 0x70, 0x00, 0x00, 0x00, 0x00};
 
-    // run_test_cases();
+    // 两个错误
+    // uint8_t data[] = {0x02, 0x01, 0x01, 0x00, 0x07, 0x00, 0x00, 0x00};
+
+    // 一个错误
+    // uint8_t data[] = {0x01, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    // uint8_t data[] = {0x00, 0x00, 0x05, 0x00, 0x06, 0x07, 0x00, 0x04};
+
+
+    // uint8_t data[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x02, 0x01, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x03, 0x01, 0x01, 0x00, 0x02, 0x03, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x04, 0x01, 0x01, 0x00, 0x02, 0x03, 0x00, 0x04};                                               
+    // uint8_t data[] = {0x05, 0x01, 0x01, 0x00, 0x02, 0x03, 0x00, 0x04};                                               
+    // uint8_t data[] = {0x05, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x06, 0x01, 0x01, 0x00, 0x02, 0x03, 0x00, 0x04};                                               
+    // uint8_t data[] = {0x06, 0x02, 0x05, 0x00, 0x06, 0x00, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x07, 0x01, 0x01, 0x00, 0x02, 0x03, 0x00, 0x04};                                               
+    // uint8_t data[] = {0x07, 0x02, 0x05, 0x00, 0x06, 0x07, 0x00, 0x00};                                               
+    // uint8_t data[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    uint8_t data[] = {0x03, 0x08, 0x00, 0x06, 0x4C, 0xC8, 0x1C, 0x00};
 
     CMS_I_FaultDecoded_t decoded;
     cms_i_fault_decode(data, &decoded);
-
 
     printf("Cycle %4u: TotalFaults=%u, FrameIndex=%u, Supplier=%u, Faults: ",
         cycle_count, decoded.TotalFaultNum, decoded.FrameIndex, decoded.SupplierNum);
@@ -477,7 +508,19 @@ void can_dem_app(void)
         printf("%02X ", data[i]);
     }
     printf("\r\n\r\n");
-    
+
+    return rc;
+}
+
+void can_dem_app(void)
+{
+
+    int rc = 0;
+
+    // run_test_cases();
+
+    tmp_test_parse_data_1();
+
     return ;
 }
 
