@@ -1,10 +1,10 @@
-#include "can_dem.h"
+#include "fault_info_unit_test.h"
 
 int main()
 {
     int rc = 0;
 
-    can_dem_app();
+    demo_app_start();
 
     return rc;
 }
