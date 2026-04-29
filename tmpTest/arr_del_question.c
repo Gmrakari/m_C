@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 static int arr_num[1000] = {0};
+static int arr_num2[1] = {0};sss
 
 static int _print_arr_elem(const int *arr, int len)
 {
